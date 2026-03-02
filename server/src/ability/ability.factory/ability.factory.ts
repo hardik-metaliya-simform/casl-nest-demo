@@ -14,7 +14,7 @@ import type {
 } from 'src/generated/prisma/client';
 
 export enum Actions {
-  Manage = 'manage',
+  Manage = 'manage', // wild card
   Create = 'create',
   Read = 'read',
   Update = 'update',
@@ -165,6 +165,16 @@ export class AbilityFactory {
       can(Actions.Update, 'Employee', ['name', 'careerStartDate'], {
         id: user.id,
       });
+
+      // Allow RM to read departments that contain their direct reports
+      can(Actions.Read, 'Department', {
+        employees: { some: { reportingManagerId: user.id } },
+      });
+
+      // Allow RM to read their own department (if assigned)
+      if (user.departmentId) {
+        can(Actions.Read, 'Department', { id: user.departmentId });
+      }
     }
 
     /**

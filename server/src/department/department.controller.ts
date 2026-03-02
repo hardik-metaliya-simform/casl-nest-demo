@@ -45,7 +45,7 @@ export class DepartmentController {
   }
 
   @Get()
-  @CheckAbility({ action: Actions.Read, subject: 'Department' })
+  // @CheckAbility({ action: Actions.Read, subject: 'Department' })
   @ApiOperation({ summary: 'Get all departments (filtered by permissions)' })
   @ApiResponse({ status: 200, description: 'List of accessible departments' })
   findAll(@CurrentUser() user: UserContext) {

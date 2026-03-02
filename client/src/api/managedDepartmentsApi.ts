@@ -1,6 +1,11 @@
 import axiosInstance from "./axiosInstance";
 import type { ManagedDepartment } from "../types";
 
+export interface CreateManagedDepartmentPayload {
+  employeeId: number;
+  departmentIds: number[];
+}
+
 export const managedDepartmentsApi = {
   async getAll(): Promise<ManagedDepartment[]> {
     const response = await axiosInstance.get("/managed-departments");
@@ -12,7 +17,9 @@ export const managedDepartmentsApi = {
     return response.data;
   },
 
-  async create(data: Partial<ManagedDepartment>): Promise<ManagedDepartment> {
+  async create(
+    data: CreateManagedDepartmentPayload,
+  ): Promise<ManagedDepartment[]> {
     const response = await axiosInstance.post("/managed-departments", data);
     return response.data;
   },

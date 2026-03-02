@@ -59,10 +59,6 @@ export class AbilityFactory {
       return build();
     }
 
-    // Salary is restricted to CTO only — apply to all non-CTO roles
-    cannot(Actions.Read, 'Employee', ['salary']);
-    cannot(Actions.Update, 'Employee', ['salary']);
-
     /**
      * TM (Team Manager)
      * - Manages one or more departments via managedDepartmentIds
@@ -198,13 +194,19 @@ export class AbilityFactory {
       can(Actions.Update, 'Employee', ['name', 'careerStartDate'], {
         id: user.id,
       });
-      cannot(Actions.Read, 'Employee', ['salary', 'roles']);
       // Can read own public notes only
       can(Actions.Read, 'Note', { isAdminOnly: false, employeeId: user.id });
+      // Pure employees cannot see their own roles field — declared after can so it wins
+      cannot(Actions.Read, 'Employee', ['roles']);
     }
 
     // All authors can read notes they authored (ensures creators can always view their notes)
     can(Actions.Read, 'Note', { authorId: user.id });
+
+    // Salary is CTO-only — these cannot rules are declared LAST so they override
+    // any broader can(Read/Update, Employee) rules granted above (CASL: last rule wins)
+    cannot(Actions.Read, 'Employee', ['salary']);
+    cannot(Actions.Update, 'Employee', ['salary']);
 
     return build();
   }

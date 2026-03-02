@@ -11,10 +11,19 @@ export class ManagedDepartmentService {
   async create(dto: CreateManagedDepartmentDto, user: UserContext) {
     // Only CTO should be able to create managed departments
     // This is enforced by the AbilityGuard
-    return this.prisma.managedDepartment.create({
-      data: {
+    await this.prisma.managedDepartment.createMany({
+      data: dto.departmentIds.map((departmentId) => ({
         employeeId: dto.employeeId,
-        departmentId: dto.departmentId,
+        departmentId,
+      })),
+      skipDuplicates: true,
+    });
+
+    // createMany does not return relations, so fetch the created records
+    return this.prisma.managedDepartment.findMany({
+      where: {
+        employeeId: dto.employeeId,
+        departmentId: { in: dto.departmentIds },
       },
       include: {
         employee: true,
@@ -61,8 +70,10 @@ export class ManagedDepartmentService {
     return this.prisma.managedDepartment.update({
       where: { id },
       data: {
-        employeeId: dto.employeeId,
-        departmentId: dto.departmentId,
+        ...(dto.employeeId !== undefined && { employeeId: dto.employeeId }),
+        ...(dto.departmentId !== undefined && {
+          departmentId: dto.departmentId,
+        }),
       },
       include: {
         employee: true,

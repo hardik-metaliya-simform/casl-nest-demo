@@ -13,6 +13,7 @@ import {
   Chip,
   OutlinedInput,
 } from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material/Select";
 import { employeesApi } from "../../api/employeesApi";
 import { departmentsApi } from "../../api/departmentsApi";
 import { authService } from "../../services/authService";
@@ -40,7 +41,7 @@ export const EmployeeForm: React.FC = () => {
     careerStartDate: "",
     salary: "",
     roles: ["Employee"] as string[],
-    departmentIds: [] as number[],
+    departmentId: "",
     reportingManagerId: "",
   });
 
@@ -65,10 +66,10 @@ export const EmployeeForm: React.FC = () => {
               : "",
             salary: employee.salary?.toString() || "",
             roles: employee.roles?.length ? employee.roles : ["Employee"],
-            departmentIds:
-              employee.departmentIds ??
-              employee.departments?.map((d) => d.id) ??
-              [],
+            departmentId:
+              (
+                employee.departmentIds?.[0] ?? employee.departments?.[0]?.id
+              )?.toString() ?? "",
             reportingManagerId: employee.reportingManagerId?.toString() || "",
           });
         }
@@ -91,17 +92,16 @@ export const EmployeeForm: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleRolesChange = (e: any) => {
+  const handleRolesChange = (e: SelectChangeEvent<string[]>) => {
     const value = e.target.value;
     setFormData((prev) => ({
       ...prev,
-      roles: typeof value === "string" ? value.split(",") : value,
+      roles: Array.isArray(value) ? value : [value],
     }));
   };
 
-  const handleDepartmentsChange = (e: any) => {
-    const value = e.target.value as number[];
-    setFormData((prev) => ({ ...prev, departmentIds: value }));
+  const handleDepartmentChange = (e: SelectChangeEvent<string>) => {
+    setFormData((prev) => ({ ...prev, departmentId: e.target.value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,8 +119,8 @@ export const EmployeeForm: React.FC = () => {
           roles: abilities?.permissions.Employee.canEditRole
             ? formData.roles
             : undefined,
-          departmentIds: formData.departmentIds.length
-            ? formData.departmentIds
+          departmentIds: formData.departmentId
+            ? [parseInt(formData.departmentId)]
             : undefined,
           reportingManagerId: formData.reportingManagerId
             ? parseInt(formData.reportingManagerId)
@@ -140,8 +140,8 @@ export const EmployeeForm: React.FC = () => {
           salary:
             formData.salary !== "" ? parseFloat(formData.salary) : undefined,
           roles: formData.roles,
-          departmentIds: formData.departmentIds.length
-            ? formData.departmentIds
+          departmentIds: formData.departmentId
+            ? [parseInt(formData.departmentId)]
             : undefined,
           reportingManagerId: formData.reportingManagerId
             ? parseInt(formData.reportingManagerId)
@@ -215,7 +215,9 @@ export const EmployeeForm: React.FC = () => {
             InputLabelProps={{ shrink: true }}
           />
 
-          {abilities?.permissions.Employee.canSeeSalary && (
+          {(isEdit
+            ? abilities?.permissions.Employee.canEditSalary
+            : abilities?.permissions.Employee.canSeeSalary) && (
             <TextField
               fullWidth
               label="Salary"
@@ -253,25 +255,15 @@ export const EmployeeForm: React.FC = () => {
           )}
 
           <FormControl fullWidth margin="normal">
-            <InputLabel>Departments</InputLabel>
+            <InputLabel>Department</InputLabel>
             <Select
-              multiple
-              value={formData.departmentIds}
-              onChange={handleDepartmentsChange}
-              input={<OutlinedInput label="Departments" />}
-              renderValue={(selected) => (
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                  {(selected as number[]).map((id) => {
-                    const dept = departments.find((d) => d.id === id);
-                    return (
-                      <Chip key={id} label={dept?.name ?? id} size="small" />
-                    );
-                  })}
-                </Box>
-              )}
+              value={formData.departmentId}
+              onChange={handleDepartmentChange}
+              label="Department"
             >
+              <MenuItem value="">None</MenuItem>
               {departments.map((dept) => (
-                <MenuItem key={dept.id} value={dept.id}>
+                <MenuItem key={dept.id} value={dept.id.toString()}>
                   {dept.name}
                 </MenuItem>
               ))}

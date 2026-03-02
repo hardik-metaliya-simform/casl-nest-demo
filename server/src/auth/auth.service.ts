@@ -154,6 +154,7 @@ export class AuthService {
           update: canDo(Actions.Update, 'Employee'),
           delete: canDo(Actions.Delete, 'Employee'),
           canSeeSalary: canDo(Actions.Read, 'Employee', 'salary'),
+          canEditSalary: canDo(Actions.Update, 'Employee', 'salary'),
           canSeeRole: canDo(Actions.Read, 'Employee', 'roles'),
           canEditRole: canDo(Actions.Update, 'Employee', 'roles'),
         },

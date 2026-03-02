@@ -27,6 +27,7 @@ export interface Abilities {
       update: boolean;
       delete: boolean;
       canSeeSalary: boolean;
+      canEditSalary: boolean;
       canSeeRole: boolean;
       canEditRole: boolean;
     };

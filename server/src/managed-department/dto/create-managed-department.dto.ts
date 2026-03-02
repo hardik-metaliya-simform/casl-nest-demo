@@ -1,4 +1,4 @@
-import { IsInt } from 'class-validator';
+import { IsInt, IsArray, ArrayNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateManagedDepartmentDto {
@@ -10,9 +10,12 @@ export class CreateManagedDepartmentDto {
   employeeId: number;
 
   @ApiProperty({
-    example: 1,
-    description: 'Department ID to be managed',
+    example: [1, 2],
+    description: 'One or more Department IDs to assign to this employee',
+    type: [Number],
   })
-  @IsInt()
-  departmentId: number;
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  departmentIds: number[];
 }

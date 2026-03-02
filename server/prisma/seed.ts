@@ -63,6 +63,7 @@ async function main() {
       password: defaultPassword,
       roles: ['CTO'],
       salary: 200000,
+      careerStartDate: new Date('2015-03-01'),
     },
   });
 
@@ -76,6 +77,7 @@ async function main() {
       password: defaultPassword,
       roles: ['TM'],
       salary: 150000,
+      careerStartDate: new Date('2017-06-15'),
     },
   });
 
@@ -86,6 +88,7 @@ async function main() {
       password: defaultPassword,
       roles: ['TM'],
       salary: 140000,
+      careerStartDate: new Date('2018-01-10'),
     },
   });
 
@@ -96,6 +99,7 @@ async function main() {
       password: defaultPassword,
       roles: ['TM'],
       salary: 130000,
+      careerStartDate: new Date('2018-09-01'),
     },
   });
 
@@ -120,6 +124,7 @@ async function main() {
       password: defaultPassword,
       roles: ['RM'],
       salary: 120000,
+      careerStartDate: new Date('2019-04-01'),
       reportingManagerId: tmEngineering.id,
     },
   });
@@ -131,6 +136,7 @@ async function main() {
       password: defaultPassword,
       roles: ['RM'],
       salary: 115000,
+      careerStartDate: new Date('2019-07-15'),
       reportingManagerId: tmEngineering.id,
     },
   });
@@ -142,6 +148,7 @@ async function main() {
       password: defaultPassword,
       roles: ['RM'],
       salary: 110000,
+      careerStartDate: new Date('2020-02-01'),
       reportingManagerId: tmSales.id,
     },
   });
@@ -153,6 +160,7 @@ async function main() {
       password: defaultPassword,
       roles: ['RM'],
       salary: 105000,
+      careerStartDate: new Date('2020-05-10'),
       reportingManagerId: tmHR.id,
     },
   });
@@ -167,6 +175,7 @@ async function main() {
       password: defaultPassword,
       roles: ['Employee'],
       salary: 90000,
+      careerStartDate: new Date('2021-03-01'),
       reportingManagerId: rmBackend.id,
     },
   });
@@ -178,6 +187,7 @@ async function main() {
       password: defaultPassword,
       roles: ['Employee'],
       salary: 85000,
+      careerStartDate: new Date('2021-08-16'),
       reportingManagerId: rmBackend.id,
     },
   });
@@ -189,6 +199,7 @@ async function main() {
       password: defaultPassword,
       roles: ['Employee'],
       salary: 88000,
+      careerStartDate: new Date('2022-01-10'),
       reportingManagerId: rmFrontend.id,
     },
   });
@@ -200,6 +211,7 @@ async function main() {
       password: defaultPassword,
       roles: ['Employee'],
       salary: 82000,
+      careerStartDate: new Date('2022-06-01'),
       reportingManagerId: rmFrontend.id,
     },
   });
@@ -211,6 +223,7 @@ async function main() {
       password: defaultPassword,
       roles: ['Employee'],
       salary: 75000,
+      careerStartDate: new Date('2021-11-15'),
       reportingManagerId: rmSales.id,
     },
   });
@@ -222,6 +235,7 @@ async function main() {
       password: defaultPassword,
       roles: ['Employee'],
       salary: 72000,
+      careerStartDate: new Date('2023-02-01'),
       reportingManagerId: rmSales.id,
     },
   });
@@ -233,6 +247,7 @@ async function main() {
       password: defaultPassword,
       roles: ['Employee'],
       salary: 68000,
+      careerStartDate: new Date('2022-09-05'),
       reportingManagerId: rmHR.id,
     },
   });
@@ -244,28 +259,24 @@ async function main() {
       password: defaultPassword,
       roles: ['Employee'],
       salary: 65000,
+      careerStartDate: new Date('2023-07-17'),
       reportingManagerId: rmHR.id,
     },
   });
 
   console.log('✅ Created Regular Employees');
 
-  // Create EmployeeDepartment assignments (many-to-many)
-  // CTO & TMs span all departments; some employees are cross-department
+  // Create EmployeeDepartment assignments — each employee belongs to exactly one department
   await prisma.employeeDepartment.createMany({
     data: [
-      // CTO is in Engineering (primary)
       { employeeId: cto.id, departmentId: engineering.id },
-      // TMs
       { employeeId: tmEngineering.id, departmentId: engineering.id },
       { employeeId: tmSales.id, departmentId: sales.id },
       { employeeId: tmHR.id, departmentId: hr.id },
-      // RMs
       { employeeId: rmBackend.id, departmentId: engineering.id },
       { employeeId: rmFrontend.id, departmentId: engineering.id },
       { employeeId: rmSales.id, departmentId: sales.id },
       { employeeId: rmHR.id, departmentId: hr.id },
-      // Regular employees — primary assignments
       { employeeId: backendDev1.id, departmentId: engineering.id },
       { employeeId: backendDev2.id, departmentId: engineering.id },
       { employeeId: frontendDev1.id, departmentId: engineering.id },
@@ -274,15 +285,11 @@ async function main() {
       { employeeId: salesRep2.id, departmentId: sales.id },
       { employeeId: hrSpecialist1.id, departmentId: hr.id },
       { employeeId: hrSpecialist2.id, departmentId: hr.id },
-      // Cross-department assignments to demonstrate many-to-many
-      { employeeId: frontendDev2.id, departmentId: sales.id }, // Leo works Engineering + Sales
-      { employeeId: salesRep1.id, departmentId: hr.id }, // Maria works Sales + HR
-      { employeeId: rmBackend.id, departmentId: sales.id }, // Emma manages both Eng + Sales
     ],
   });
 
   console.log(
-    '✅ Created EmployeeDepartment assignments (including cross-dept)',
+    '✅ Created EmployeeDepartment assignments (one dept per employee)',
   );
 
   // Create Teams

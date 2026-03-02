@@ -103,6 +103,10 @@ export class EmployeeService {
       where: {
         AND: [accessibleBy(ability, Actions.Update).Employee, { id }],
       },
+      // Required: CASL evaluates field-level conditions (e.g. TM updating 'roles'
+      // is gated on employeeDepartments) against the loaded instance — without this,
+      // the condition evaluates against undefined and the field is always rejected
+      include: { employeeDepartments: true },
     });
 
     if (!employee) {

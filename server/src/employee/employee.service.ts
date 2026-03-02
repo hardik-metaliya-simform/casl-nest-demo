@@ -31,11 +31,19 @@ export class EmployeeService {
           : null,
         salary: dto.salary,
         roles: dto.roles?.length ? dto.roles : ['Employee'],
-        departmentId: dto.departmentId,
         reportingManagerId: dto.reportingManagerId,
+        ...(dto.departmentIds?.length
+          ? {
+              employeeDepartments: {
+                create: dto.departmentIds.map((id) => ({
+                  departmentId: id,
+                })),
+              },
+            }
+          : {}),
       },
       include: {
-        department: true,
+        employeeDepartments: { include: { department: true } },
         reportingManager: true,
       },
     });
@@ -50,7 +58,7 @@ export class EmployeeService {
     const employees = await this.prisma.employee.findMany({
       where: accessibleFilter,
       include: {
-        department: true,
+        employeeDepartments: { include: { department: true } },
         reportingManager: true,
         notes: true,
       },
@@ -68,7 +76,7 @@ export class EmployeeService {
         AND: [accessibleBy(ability, Actions.Read).Employee, { id }],
       },
       include: {
-        department: true,
+        employeeDepartments: { include: { department: true } },
         reportingManager: true,
         reports: true,
         notes: true,
@@ -114,7 +122,6 @@ export class EmployeeService {
       ],
       ['salary', dto.salary],
       ['roles', dto.roles],
-      ['departmentId', dto.departmentId],
       ['reportingManagerId', dto.reportingManagerId],
     ];
 
@@ -146,12 +153,30 @@ export class EmployeeService {
       data.password = await bcrypt.hash(dto.password, 10);
     }
 
+    // Handle departmentIds replacement (many-to-many)
+    if (
+      dto.departmentIds !== undefined &&
+      ability.can(Actions.Update, employeeSubject, 'departmentIds')
+    ) {
+      await this.prisma.employeeDepartment.deleteMany({
+        where: { employeeId: id },
+      });
+      if (dto.departmentIds.length > 0) {
+        await this.prisma.employeeDepartment.createMany({
+          data: dto.departmentIds.map((dId) => ({
+            employeeId: id,
+            departmentId: dId,
+          })),
+        });
+      }
+    }
+
     return this.sanitizeEmployee(
       await this.prisma.employee.update({
         where: { id },
         data,
         include: {
-          department: true,
+          employeeDepartments: { include: { department: true } },
           reportingManager: true,
         },
       }),
@@ -181,6 +206,14 @@ export class EmployeeService {
   /** Strip fields the user is not permitted to read from an employee record. */
   private sanitizeEmployee(emp: any, user: UserContext): any {
     const result = { ...emp };
+
+    // Flatten employeeDepartments → departments array for a clean response shape
+    if (Array.isArray(result.employeeDepartments)) {
+      result.departments = result.employeeDepartments.map(
+        (ed: any) => ed.department,
+      );
+      delete result.employeeDepartments;
+    }
 
     // Only CTO can see salary
     if (!user.roles.includes('CTO')) {

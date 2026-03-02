@@ -55,6 +55,7 @@ export const ModelName = {
   Department: 'Department',
   Team: 'Team',
   ManagedDepartment: 'ManagedDepartment',
+  EmployeeDepartment: 'EmployeeDepartment',
   Note: 'Note'
 } as const
 
@@ -82,7 +83,6 @@ export const EmployeeScalarFieldEnum = {
   careerStartDate: 'careerStartDate',
   salary: 'salary',
   roles: 'roles',
-  departmentId: 'departmentId',
   reportingManagerId: 'reportingManagerId'
 } as const
 
@@ -113,6 +113,15 @@ export const ManagedDepartmentScalarFieldEnum = {
 } as const
 
 export type ManagedDepartmentScalarFieldEnum = (typeof ManagedDepartmentScalarFieldEnum)[keyof typeof ManagedDepartmentScalarFieldEnum]
+
+
+export const EmployeeDepartmentScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  departmentId: 'departmentId'
+} as const
+
+export type EmployeeDepartmentScalarFieldEnum = (typeof EmployeeDepartmentScalarFieldEnum)[keyof typeof EmployeeDepartmentScalarFieldEnum]
 
 
 export const NoteScalarFieldEnum = {

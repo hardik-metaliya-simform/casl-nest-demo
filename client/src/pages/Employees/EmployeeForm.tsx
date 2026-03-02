@@ -40,7 +40,7 @@ export const EmployeeForm: React.FC = () => {
     careerStartDate: "",
     salary: "",
     roles: ["Employee"] as string[],
-    departmentId: "",
+    departmentIds: [] as number[],
     reportingManagerId: "",
   });
 
@@ -65,7 +65,10 @@ export const EmployeeForm: React.FC = () => {
               : "",
             salary: employee.salary?.toString() || "",
             roles: employee.roles?.length ? employee.roles : ["Employee"],
-            departmentId: employee.departmentId?.toString() || "",
+            departmentIds:
+              employee.departmentIds ??
+              employee.departments?.map((d) => d.id) ??
+              [],
             reportingManagerId: employee.reportingManagerId?.toString() || "",
           });
         }
@@ -96,6 +99,11 @@ export const EmployeeForm: React.FC = () => {
     }));
   };
 
+  const handleDepartmentsChange = (e: any) => {
+    const value = e.target.value as number[];
+    setFormData((prev) => ({ ...prev, departmentIds: value }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -111,8 +119,8 @@ export const EmployeeForm: React.FC = () => {
           roles: abilities?.permissions.Employee.canEditRole
             ? formData.roles
             : undefined,
-          departmentId: formData.departmentId
-            ? parseInt(formData.departmentId)
+          departmentIds: formData.departmentIds.length
+            ? formData.departmentIds
             : undefined,
           reportingManagerId: formData.reportingManagerId
             ? parseInt(formData.reportingManagerId)
@@ -132,8 +140,8 @@ export const EmployeeForm: React.FC = () => {
           salary:
             formData.salary !== "" ? parseFloat(formData.salary) : undefined,
           roles: formData.roles,
-          departmentId: formData.departmentId
-            ? parseInt(formData.departmentId)
+          departmentIds: formData.departmentIds.length
+            ? formData.departmentIds
             : undefined,
           reportingManagerId: formData.reportingManagerId
             ? parseInt(formData.reportingManagerId)
@@ -245,21 +253,25 @@ export const EmployeeForm: React.FC = () => {
           )}
 
           <FormControl fullWidth margin="normal">
-            <InputLabel>Department</InputLabel>
+            <InputLabel>Departments</InputLabel>
             <Select
-              name="departmentId"
-              value={formData.departmentId}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  departmentId: e.target.value as string,
-                }))
-              }
-              label="Department"
+              multiple
+              value={formData.departmentIds}
+              onChange={handleDepartmentsChange}
+              input={<OutlinedInput label="Departments" />}
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {(selected as number[]).map((id) => {
+                    const dept = departments.find((d) => d.id === id);
+                    return (
+                      <Chip key={id} label={dept?.name ?? id} size="small" />
+                    );
+                  })}
+                </Box>
+              )}
             >
-              <MenuItem value="">None</MenuItem>
               {departments.map((dept) => (
-                <MenuItem key={dept.id} value={dept.id.toString()}>
+                <MenuItem key={dept.id} value={dept.id}>
                   {dept.name}
                 </MenuItem>
               ))}

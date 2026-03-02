@@ -388,6 +388,7 @@ export const ModelName = {
   Department: 'Department',
   Team: 'Team',
   ManagedDepartment: 'ManagedDepartment',
+  EmployeeDepartment: 'EmployeeDepartment',
   Note: 'Note'
 } as const
 
@@ -404,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "employee" | "department" | "team" | "managedDepartment" | "note"
+    modelProps: "employee" | "department" | "team" | "managedDepartment" | "employeeDepartment" | "note"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -704,6 +705,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    EmployeeDepartment: {
+      payload: Prisma.$EmployeeDepartmentPayload<ExtArgs>
+      fields: Prisma.EmployeeDepartmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmployeeDepartmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeDepartmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmployeeDepartmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeDepartmentPayload>
+        }
+        findFirst: {
+          args: Prisma.EmployeeDepartmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeDepartmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmployeeDepartmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeDepartmentPayload>
+        }
+        findMany: {
+          args: Prisma.EmployeeDepartmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeDepartmentPayload>[]
+        }
+        create: {
+          args: Prisma.EmployeeDepartmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeDepartmentPayload>
+        }
+        createMany: {
+          args: Prisma.EmployeeDepartmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmployeeDepartmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeDepartmentPayload>[]
+        }
+        delete: {
+          args: Prisma.EmployeeDepartmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeDepartmentPayload>
+        }
+        update: {
+          args: Prisma.EmployeeDepartmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeDepartmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmployeeDepartmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmployeeDepartmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmployeeDepartmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeDepartmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmployeeDepartmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeeDepartmentPayload>
+        }
+        aggregate: {
+          args: Prisma.EmployeeDepartmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmployeeDepartment>
+        }
+        groupBy: {
+          args: Prisma.EmployeeDepartmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeDepartmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmployeeDepartmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmployeeDepartmentCountAggregateOutputType> | number
+        }
+      }
+    }
     Note: {
       payload: Prisma.$NotePayload<ExtArgs>
       fields: Prisma.NoteFieldRefs
@@ -825,7 +900,6 @@ export const EmployeeScalarFieldEnum = {
   careerStartDate: 'careerStartDate',
   salary: 'salary',
   roles: 'roles',
-  departmentId: 'departmentId',
   reportingManagerId: 'reportingManagerId'
 } as const
 
@@ -856,6 +930,15 @@ export const ManagedDepartmentScalarFieldEnum = {
 } as const
 
 export type ManagedDepartmentScalarFieldEnum = (typeof ManagedDepartmentScalarFieldEnum)[keyof typeof ManagedDepartmentScalarFieldEnum]
+
+
+export const EmployeeDepartmentScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  departmentId: 'departmentId'
+} as const
+
+export type EmployeeDepartmentScalarFieldEnum = (typeof EmployeeDepartmentScalarFieldEnum)[keyof typeof EmployeeDepartmentScalarFieldEnum]
 
 
 export const NoteScalarFieldEnum = {
@@ -1061,6 +1144,7 @@ export type GlobalOmitConfig = {
   department?: Prisma.DepartmentOmit
   team?: Prisma.TeamOmit
   managedDepartment?: Prisma.ManagedDepartmentOmit
+  employeeDepartment?: Prisma.EmployeeDepartmentOmit
   note?: Prisma.NoteOmit
 }
 

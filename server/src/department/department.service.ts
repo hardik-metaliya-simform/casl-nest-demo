@@ -17,15 +17,21 @@ export class DepartmentService {
   ) {}
 
   async create(dto: CreateDepartmentDto, user: UserContext) {
-    return this.prisma.department.create({
+    const department = await this.prisma.department.create({
       data: {
         name: dto.name,
       },
       include: {
         teams: true,
-        employees: true,
+        employeeDepartments: { include: { employee: true } },
       },
     });
+
+    return {
+      ...department,
+      employees: department.employeeDepartments.map((ed) => ed.employee),
+      employeeDepartments: undefined,
+    };
   }
 
   async findAll(user: UserContext) {
@@ -35,11 +41,15 @@ export class DepartmentService {
       where: accessibleBy(ability, Actions.Read).Department,
       include: {
         teams: true,
-        employees: true,
+        employeeDepartments: { include: { employee: true } },
       },
     });
 
-    return departments;
+    return departments.map((d) => ({
+      ...d,
+      employees: d.employeeDepartments.map((ed) => ed.employee),
+      employeeDepartments: undefined,
+    }));
   }
 
   async findOne(id: number, user: UserContext) {
@@ -51,7 +61,7 @@ export class DepartmentService {
       },
       include: {
         teams: true,
-        employees: true,
+        employeeDepartments: { include: { employee: true } },
       },
     });
 
@@ -59,7 +69,11 @@ export class DepartmentService {
       throw new NotFoundException('Department not found or access denied');
     }
 
-    return department;
+    return {
+      ...department,
+      employees: department.employeeDepartments.map((ed) => ed.employee),
+      employeeDepartments: undefined,
+    };
   }
 
   async update(id: number, dto: UpdateDepartmentDto, user: UserContext) {
@@ -75,16 +89,22 @@ export class DepartmentService {
       throw new NotFoundException('Department not found or access denied');
     }
 
-    return this.prisma.department.update({
+    const updated = await this.prisma.department.update({
       where: { id },
       data: {
         name: dto.name,
       },
       include: {
         teams: true,
-        employees: true,
+        employeeDepartments: { include: { employee: true } },
       },
     });
+
+    return {
+      ...updated,
+      employees: updated.employeeDepartments.map((ed) => ed.employee),
+      employeeDepartments: undefined,
+    };
   }
 
   async remove(id: number, user: UserContext) {

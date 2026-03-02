@@ -10,14 +10,14 @@ export interface User {
 export interface UserContext {
   id: number;
   roles: Role[];
-  departmentId?: number;
+  departmentIds?: number[];
   managedDepartmentIds?: number[];
 }
 
 export interface Abilities {
   roles: Role[];
   userId: number;
-  departmentId?: number;
+  departmentIds?: number[];
   managedDepartmentIds: number[];
   canManageAll: boolean;
   permissions: {
@@ -68,7 +68,7 @@ export interface RegisterDto {
   password: string;
   name?: string;
   roles?: Role[];
-  departmentId?: number;
+  departmentIds?: number[];
   reportingManagerId?: number;
   careerStartDate?: string;
 }
@@ -80,9 +80,9 @@ export interface Employee {
   careerStartDate?: string;
   salary?: number;
   roles?: string[];
-  departmentId?: number;
+  departmentIds?: number[];
   reportingManagerId?: number;
-  department?: Department;
+  departments?: Department[];
   reportingManager?: Employee;
 }
 

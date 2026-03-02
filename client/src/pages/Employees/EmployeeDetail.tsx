@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Typography, Paper, Button, Box, Stack } from "@mui/material";
+import { Typography, Paper, Button, Box, Stack, Chip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { employeesApi } from "../../api/employeesApi";
@@ -162,11 +162,19 @@ export const EmployeeDetail: React.FC = () => {
 
             <Box sx={{ flex: "1 1 45%", minWidth: "200px" }}>
               <Typography variant="subtitle2" color="text.secondary">
-                Department
+                Departments
               </Typography>
-              <Typography variant="body1">
-                {employee.department?.name || employee.departmentId || "N/A"}
-              </Typography>
+              {employee.departments?.length ? (
+                <Box
+                  sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mt: 0.5 }}
+                >
+                  {employee.departments.map((d) => (
+                    <Chip key={d.id} label={d.name} size="small" />
+                  ))}
+                </Box>
+              ) : (
+                <Typography variant="body1">N/A</Typography>
+              )}
             </Box>
           </Box>
 

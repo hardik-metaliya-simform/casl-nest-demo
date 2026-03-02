@@ -139,9 +139,9 @@ export const EmployeeList: React.FC = () => {
                     </TableCell>
                   )}
                   <TableCell>
-                    {employee.department?.name ||
-                      employee.departmentId ||
-                      "N/A"}
+                    {employee.departments?.length
+                      ? employee.departments.map((d) => d.name).join(", ")
+                      : "N/A"}
                   </TableCell>
                   <TableCell>
                     {employee.careerStartDate

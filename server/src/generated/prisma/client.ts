@@ -58,6 +58,11 @@ export type Team = Prisma.TeamModel
  */
 export type ManagedDepartment = Prisma.ManagedDepartmentModel
 /**
+ * Model EmployeeDepartment
+ * 
+ */
+export type EmployeeDepartment = Prisma.EmployeeDepartmentModel
+/**
  * Model Note
  * 
  */

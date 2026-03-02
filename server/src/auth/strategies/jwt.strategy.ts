@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // assignments are always up-to-date without requiring a re-login
     const employee = await this.prisma.employee.findUnique({
       where: { id: payload.sub },
-      include: { managedDepartments: true },
+      include: { managedDepartments: true, employeeDepartments: true },
     });
 
     if (!employee) {
@@ -38,7 +38,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return {
       id: employee.id,
       roles: employee.roles as any,
-      departmentId: employee.departmentId ?? undefined,
+      departmentIds: employee.employeeDepartments.map((ed) => ed.departmentId),
       managedDepartmentIds,
     };
   }

@@ -60,12 +60,14 @@ export class CreateEmployeeDto {
   roles?: string[];
 
   @ApiPropertyOptional({
-    example: 1,
-    description: 'Department ID',
+    example: [1, 2],
+    description: 'Department IDs (employee can belong to multiple departments)',
+    isArray: true,
   })
   @IsOptional()
-  @IsInt()
-  departmentId?: number;
+  @IsArray()
+  @IsInt({ each: true })
+  departmentIds?: number[];
 
   @ApiPropertyOptional({
     example: 2,

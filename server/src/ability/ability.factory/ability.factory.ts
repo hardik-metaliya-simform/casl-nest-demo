@@ -35,7 +35,7 @@ export type AppAbility = PureAbility<[Actions, AppSubjects], PrismaQuery>;
 export type UserContext = {
   id: number;
   roles: ('CTO' | 'TM' | 'RM' | 'Employee')[];
-  departmentId?: number;
+  departmentIds?: number[];
   managedDepartmentIds?: number[];
 };
 
@@ -77,7 +77,7 @@ export class AbilityFactory {
       const deptIds = user.managedDepartmentIds;
 
       can(Actions.Read, 'Employee', {
-        departmentId: { in: deptIds },
+        employeeDepartments: { some: { departmentId: { in: deptIds } } },
       });
 
       can(
@@ -88,21 +88,29 @@ export class AbilityFactory {
           'careerStartDate',
           'email',
           'roles',
-          'departmentId',
+          'departmentIds',
           'reportingManagerId',
         ],
-        { departmentId: { in: deptIds } },
+        { employeeDepartments: { some: { departmentId: { in: deptIds } } } },
       );
 
       // Can create notes (both public and private) on employees in managed depts
       can(Actions.Create, 'Note', {
-        employee: { is: { departmentId: { in: deptIds } } },
+        employee: {
+          is: {
+            employeeDepartments: { some: { departmentId: { in: deptIds } } },
+          },
+        },
       });
 
       // Can read public notes for employees in managed depts
       can(Actions.Read, 'Note', {
         isAdminOnly: false,
-        employee: { is: { departmentId: { in: deptIds } } },
+        employee: {
+          is: {
+            employeeDepartments: { some: { departmentId: { in: deptIds } } },
+          },
+        },
       });
 
       // Can read own private (admin-only) notes — only notes this TM authored
@@ -139,7 +147,7 @@ export class AbilityFactory {
           'name',
           'careerStartDate',
           'email',
-          'departmentId',
+          'departmentIds',
           'reportingManagerId',
         ],
         { reportingManagerId: user.id },
@@ -168,12 +176,14 @@ export class AbilityFactory {
 
       // Allow RM to read departments that contain their direct reports
       can(Actions.Read, 'Department', {
-        employees: { some: { reportingManagerId: user.id } },
+        employeeDepartments: {
+          some: { employee: { reportingManagerId: user.id } },
+        },
       });
 
-      // Allow RM to read their own department (if assigned)
-      if (user.departmentId) {
-        can(Actions.Read, 'Department', { id: user.departmentId });
+      // Allow RM to read their own departments (if assigned)
+      if (user.departmentIds?.length) {
+        can(Actions.Read, 'Department', { id: { in: user.departmentIds } });
       }
     }
 

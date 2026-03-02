@@ -29,11 +29,17 @@ export class AuthService {
         password: hashedPassword,
         name: dto.name,
         roles: dto.roles?.length ? dto.roles : ['Employee'],
-        departmentId: dto.departmentId,
         reportingManagerId: dto.reportingManagerId,
         careerStartDate: dto.careerStartDate
           ? new Date(dto.careerStartDate)
           : null,
+        ...(dto.departmentIds?.length
+          ? {
+              employeeDepartments: {
+                create: dto.departmentIds.map((id) => ({ departmentId: id })),
+              },
+            }
+          : {}),
       },
     });
 
@@ -51,6 +57,7 @@ export class AuthService {
       where: { email: dto.email },
       include: {
         managedDepartments: true,
+        employeeDepartments: true,
       },
     });
 
@@ -72,12 +79,16 @@ export class AuthService {
       ? employee.managedDepartments.map((md) => md.departmentId)
       : undefined;
 
+    const departmentIds = employee.employeeDepartments.map(
+      (ed) => ed.departmentId,
+    );
+
     // Generate JWT
     const payload = {
       sub: employee.id,
       email: employee.email,
       roles: employee.roles,
-      departmentId: employee.departmentId,
+      departmentIds,
       managedDepartmentIds,
     };
 
@@ -99,6 +110,7 @@ export class AuthService {
       where: { id },
       include: {
         managedDepartments: true,
+        employeeDepartments: true,
       },
     });
 
@@ -113,7 +125,7 @@ export class AuthService {
     return {
       id: employee.id,
       roles: employee.roles as any,
-      departmentId: employee.departmentId ?? undefined,
+      departmentIds: employee.employeeDepartments.map((ed) => ed.departmentId),
       managedDepartmentIds,
     };
   }
@@ -132,7 +144,7 @@ export class AuthService {
     return {
       roles: user.roles,
       userId: user.id,
-      departmentId: user.departmentId,
+      departmentIds: user.departmentIds || [],
       managedDepartmentIds: user.managedDepartmentIds || [],
       canManageAll: user.roles.includes('CTO'),
       permissions: {

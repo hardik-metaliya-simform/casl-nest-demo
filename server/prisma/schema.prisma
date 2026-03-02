@@ -22,22 +22,21 @@ model Employee {
   careerStartDate    DateTime?
   salary             Float?     // restricted field 
   roles              String[]   @default([])
-  department         Department? @relation(fields: [departmentId], references: [id])
-  departmentId       Int?
   reportingManager   Employee?  @relation("ManagerReports", fields: [reportingManagerId], references: [id])
   reportingManagerId Int?
   reports            Employee[]  @relation("ManagerReports")
   notes              Note[]
   authoredNotes      Note[]     @relation("NoteAuthor")
   managedDepartments ManagedDepartment[]
+  employeeDepartments EmployeeDepartment[]
 }
 
 model Department {
   id        Int        @id @default(autoincrement())
   name      String
   teams     Team[]
-  employees Employee[]
   managers  ManagedDepartment[]
+  employeeDepartments EmployeeDepartment[]
 }
 
 model Team {
@@ -56,6 +55,17 @@ model ManagedDepartment {
   department   Department @relation(fields: [departmentId], references: [id])
   departmentId Int
   
+  @@unique([employeeId, departmentId])
+}
+
+// employee ↔ department (many-to-many)
+model EmployeeDepartment {
+  id           Int        @id @default(autoincrement())
+  employee     Employee   @relation(fields: [employeeId], references: [id])
+  employeeId   Int
+  department   Department @relation(fields: [departmentId], references: [id])
+  departmentId Int
+
   @@unique([employeeId, departmentId])
 }
 

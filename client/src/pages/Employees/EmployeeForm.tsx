@@ -10,6 +10,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Chip,
+  OutlinedInput,
 } from "@mui/material";
 import { employeesApi } from "../../api/employeesApi";
 import { departmentsApi } from "../../api/departmentsApi";
@@ -17,6 +19,8 @@ import { authService } from "../../services/authService";
 import { notificationService } from "../../services/notificationService";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import type { Employee, Department } from "../../types";
+
+const ALL_ROLES = ["Employee", "RM", "TM", "CTO"];
 
 export const EmployeeForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,9 +36,10 @@ export const EmployeeForm: React.FC = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    password: "",
     careerStartDate: "",
     salary: "",
-    role: "Employee",
+    roles: ["Employee"] as string[],
     departmentId: "",
     reportingManagerId: "",
   });
@@ -54,11 +59,12 @@ export const EmployeeForm: React.FC = () => {
           setFormData({
             name: employee.name || "",
             email: employee.email,
+            password: "",
             careerStartDate: employee.careerStartDate
               ? employee.careerStartDate.split("T")[0]
               : "",
             salary: employee.salary?.toString() || "",
-            role: employee.role || "Employee",
+            roles: employee.roles?.length ? employee.roles : ["Employee"],
             departmentId: employee.departmentId?.toString() || "",
             reportingManagerId: employee.reportingManagerId?.toString() || "",
           });
@@ -82,29 +88,57 @@ export const EmployeeForm: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleRolesChange = (e: any) => {
+    const value = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      roles: typeof value === "string" ? value.split(",") : value,
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
-      const payload: Partial<Employee> = {
-        name: formData.name || undefined,
-        email: formData.email,
-        careerStartDate: formData.careerStartDate || undefined,
-        salary: formData.salary ? parseFloat(formData.salary) : undefined,
-        role: formData.role || undefined,
-        departmentId: formData.departmentId
-          ? parseInt(formData.departmentId)
-          : undefined,
-        reportingManagerId: formData.reportingManagerId
-          ? parseInt(formData.reportingManagerId)
-          : undefined,
-      };
-
       if (isEdit && id) {
+        const payload: Partial<Employee> & { roles?: string[] } = {
+          name: formData.name || undefined,
+          email: formData.email,
+          careerStartDate: formData.careerStartDate || undefined,
+          salary:
+            formData.salary !== "" ? parseFloat(formData.salary) : undefined,
+          roles: abilities?.permissions.Employee.canEditRole
+            ? formData.roles
+            : undefined,
+          departmentId: formData.departmentId
+            ? parseInt(formData.departmentId)
+            : undefined,
+          reportingManagerId: formData.reportingManagerId
+            ? parseInt(formData.reportingManagerId)
+            : undefined,
+        };
         await employeesApi.update(parseInt(id), payload);
         notificationService.success("Employee updated successfully");
       } else {
+        const payload: Partial<Employee> & {
+          password: string;
+          roles?: string[];
+        } = {
+          name: formData.name || undefined,
+          email: formData.email,
+          password: formData.password,
+          careerStartDate: formData.careerStartDate || undefined,
+          salary:
+            formData.salary !== "" ? parseFloat(formData.salary) : undefined,
+          roles: formData.roles,
+          departmentId: formData.departmentId
+            ? parseInt(formData.departmentId)
+            : undefined,
+          reportingManagerId: formData.reportingManagerId
+            ? parseInt(formData.reportingManagerId)
+            : undefined,
+        };
         await employeesApi.create(payload);
         notificationService.success("Employee created successfully");
       }
@@ -149,6 +183,19 @@ export const EmployeeForm: React.FC = () => {
             margin="normal"
           />
 
+          {!isEdit && (
+            <TextField
+              fullWidth
+              required
+              label="Password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              margin="normal"
+            />
+          )}
+
           <TextField
             fullWidth
             label="Career Start Date"
@@ -174,17 +221,25 @@ export const EmployeeForm: React.FC = () => {
 
           {abilities?.permissions.Employee.canEditRole && (
             <FormControl fullWidth margin="normal">
-              <InputLabel>Role</InputLabel>
+              <InputLabel>Roles</InputLabel>
               <Select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                label="Role"
+                multiple
+                value={formData.roles}
+                onChange={handleRolesChange}
+                input={<OutlinedInput label="Roles" />}
+                renderValue={(selected) => (
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                    {(selected as string[]).map((value) => (
+                      <Chip key={value} label={value} size="small" />
+                    ))}
+                  </Box>
+                )}
               >
-                <MenuItem value="Employee">Employee</MenuItem>
-                <MenuItem value="RM">RM</MenuItem>
-                <MenuItem value="TM">TM</MenuItem>
-                <MenuItem value="CTO">CTO</MenuItem>
+                {ALL_ROLES.map((role) => (
+                  <MenuItem key={role} value={role}>
+                    {role}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           )}
@@ -194,7 +249,12 @@ export const EmployeeForm: React.FC = () => {
             <Select
               name="departmentId"
               value={formData.departmentId}
-              onChange={handleChange}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  departmentId: e.target.value as string,
+                }))
+              }
               label="Department"
             >
               <MenuItem value="">None</MenuItem>
@@ -211,7 +271,12 @@ export const EmployeeForm: React.FC = () => {
             <Select
               name="reportingManagerId"
               value={formData.reportingManagerId}
-              onChange={handleChange}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  reportingManagerId: e.target.value as string,
+                }))
+              }
               label="Reporting Manager"
             >
               <MenuItem value="">None</MenuItem>

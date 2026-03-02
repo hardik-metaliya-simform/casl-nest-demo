@@ -27,8 +27,8 @@ export * from "./enums.js"
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more Employees
+ * const employees = await prisma.employee.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -38,10 +38,10 @@ export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts exten
 export { Prisma }
 
 /**
- * Model User
+ * Model Employee
  * 
  */
-export type User = Prisma.UserModel
+export type Employee = Prisma.EmployeeModel
 /**
  * Model Department
  * 
@@ -52,11 +52,6 @@ export type Department = Prisma.DepartmentModel
  * 
  */
 export type Team = Prisma.TeamModel
-/**
- * Model Employee
- * 
- */
-export type Employee = Prisma.EmployeeModel
 /**
  * Model ManagedDepartment
  * 

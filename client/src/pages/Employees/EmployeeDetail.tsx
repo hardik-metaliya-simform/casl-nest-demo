@@ -112,10 +112,10 @@ export const EmployeeDetail: React.FC = () => {
             {abilities?.permissions.Employee.canSeeRole && (
               <Box sx={{ flex: "1 1 45%", minWidth: "200px" }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Role
+                  Roles
                 </Typography>
                 <Typography variant="body1">
-                  {employee.role || "N/A"}
+                  {employee.roles?.join(", ") || "N/A"}
                 </Typography>
               </Box>
             )}

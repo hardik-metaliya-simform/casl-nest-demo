@@ -10,7 +10,6 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import type { SelectChangeEvent } from "@mui/material";
 import { managedDepartmentsApi } from "../../api/managedDepartmentsApi";
 import { employeesApi } from "../../api/employeesApi";
 import { departmentsApi } from "../../api/departmentsApi";
@@ -42,7 +41,7 @@ export const ManagedDepartmentForm: React.FC = () => {
         ]);
 
         // Filter to show only TMs
-        const teamManagers = emps.filter((emp) => emp.role === "TM");
+        const teamManagers = emps.filter((emp) => emp.roles?.includes("TM"));
         setEmployees(teamManagers);
         setDepartments(depts);
 
@@ -65,7 +64,7 @@ export const ManagedDepartmentForm: React.FC = () => {
     fetchData();
   }, [id, isEdit]);
 
-  const handleChange = (e: SelectChangeEvent) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };

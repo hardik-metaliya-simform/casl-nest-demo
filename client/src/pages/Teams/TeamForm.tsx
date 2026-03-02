@@ -11,7 +11,6 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import type { SelectChangeEvent } from "@mui/material";
 import { teamsApi } from "../../api/teamsApi";
 import { departmentsApi } from "../../api/departmentsApi";
 import { notificationService } from "../../services/notificationService";
@@ -58,9 +57,7 @@ export const TeamForm: React.FC = () => {
   }, [id, isEdit]);
 
   const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));

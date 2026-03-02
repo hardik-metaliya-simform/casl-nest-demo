@@ -18,10 +18,10 @@ export { Prisma }
 export * as $Enums from './enums.js'
 export * from './enums.js';
 /**
- * Model User
+ * Model Employee
  * 
  */
-export type User = Prisma.UserModel
+export type Employee = Prisma.EmployeeModel
 /**
  * Model Department
  * 
@@ -32,11 +32,6 @@ export type Department = Prisma.DepartmentModel
  * 
  */
 export type Team = Prisma.TeamModel
-/**
- * Model Employee
- * 
- */
-export type Employee = Prisma.EmployeeModel
 /**
  * Model ManagedDepartment
  * 

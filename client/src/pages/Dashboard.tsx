@@ -43,7 +43,7 @@ export const Dashboard: React.FC = () => {
           Welcome to RBAC Demo
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Role: <strong>{user?.role}</strong>
+          Roles: <strong>{user?.roles?.join(", ")}</strong>
         </Typography>
         {abilities?.managedDepartmentIds &&
           abilities.managedDepartmentIds.length > 0 && (

@@ -38,11 +38,24 @@ export class NoteService {
       throw new ForbiddenException('Cannot create a note for this employee');
     }
 
+    // RM can only create public notes (isAdminOnly: false)
+    // TM and CTO can create both public and private notes
+    if (
+      dto.isAdminOnly &&
+      !user.roles.includes('TM') &&
+      !user.roles.includes('CTO')
+    ) {
+      throw new ForbiddenException(
+        'Only TM and CTO can create admin-only notes',
+      );
+    }
+
     return this.prisma.note.create({
       data: {
         content: dto.content,
         isAdminOnly: dto.isAdminOnly || false,
         employeeId: dto.employeeId,
+        authorId: user.id,
       },
       include: {
         employee: true,

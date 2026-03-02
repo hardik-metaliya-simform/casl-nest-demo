@@ -28,7 +28,7 @@ export class AuthService {
         email: dto.email,
         password: hashedPassword,
         name: dto.name,
-        role: dto.role || 'Employee',
+        roles: dto.roles?.length ? dto.roles : ['Employee'],
         departmentId: dto.departmentId,
         reportingManagerId: dto.reportingManagerId,
         careerStartDate: dto.careerStartDate
@@ -41,7 +41,7 @@ export class AuthService {
       id: employee.id,
       email: employee.email,
       name: employee.name,
-      role: employee.role,
+      roles: employee.roles,
     };
   }
 
@@ -68,16 +68,15 @@ export class AuthService {
     }
 
     // Get managed department IDs for TM role
-    const managedDepartmentIds =
-      employee.role === 'TM'
-        ? employee.managedDepartments.map((md) => md.departmentId)
-        : undefined;
+    const managedDepartmentIds = employee.roles.includes('TM')
+      ? employee.managedDepartments.map((md) => md.departmentId)
+      : undefined;
 
     // Generate JWT
     const payload = {
       sub: employee.id,
       email: employee.email,
-      role: employee.role,
+      roles: employee.roles,
       departmentId: employee.departmentId,
       managedDepartmentIds,
     };
@@ -90,7 +89,7 @@ export class AuthService {
         id: employee.id,
         email: employee.email,
         name: employee.name,
-        role: employee.role,
+        roles: employee.roles,
       },
     };
   }
@@ -107,14 +106,13 @@ export class AuthService {
       throw new UnauthorizedException('Employee not found');
     }
 
-    const managedDepartmentIds =
-      employee.role === 'TM'
-        ? employee.managedDepartments.map((md) => md.departmentId)
-        : undefined;
+    const managedDepartmentIds = employee.roles.includes('TM')
+      ? employee.managedDepartments.map((md) => md.departmentId)
+      : undefined;
 
     return {
       id: employee.id,
-      role: employee.role as any,
+      roles: employee.roles as any,
       departmentId: employee.departmentId ?? undefined,
       managedDepartmentIds,
     };
@@ -132,11 +130,11 @@ export class AuthService {
     };
 
     return {
-      role: user.role,
+      roles: user.roles,
       userId: user.id,
       departmentId: user.departmentId,
       managedDepartmentIds: user.managedDepartmentIds || [],
-      canManageAll: user.role === 'CTO',
+      canManageAll: user.roles.includes('CTO'),
       permissions: {
         Employee: {
           create: canDo(Actions.Create, 'Employee'),
@@ -144,8 +142,8 @@ export class AuthService {
           update: canDo(Actions.Update, 'Employee'),
           delete: canDo(Actions.Delete, 'Employee'),
           canSeeSalary: canDo(Actions.Read, 'Employee', 'salary'),
-          canSeeRole: canDo(Actions.Read, 'Employee', 'role'),
-          canEditRole: canDo(Actions.Update, 'Employee', 'role'),
+          canSeeRole: canDo(Actions.Read, 'Employee', 'roles'),
+          canEditRole: canDo(Actions.Update, 'Employee', 'roles'),
         },
         Department: {
           create: canDo(Actions.Create, 'Department'),
@@ -164,7 +162,8 @@ export class AuthService {
           read: canDo(Actions.Read, 'Note'),
           update: canDo(Actions.Update, 'Note'),
           delete: canDo(Actions.Delete, 'Note'),
-          canSeeAdminOnly: user.role === 'CTO' || user.role === 'TM',
+          canSeeAdminOnly:
+            user.roles.includes('CTO') || user.roles.includes('TM'),
         },
         ManagedDepartment: {
           create: canDo(Actions.Create, 'ManagedDepartment'),

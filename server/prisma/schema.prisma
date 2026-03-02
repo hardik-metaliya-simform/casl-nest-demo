@@ -21,13 +21,14 @@ model Employee {
   name               String?
   careerStartDate    DateTime?
   salary             Float?     // restricted field 
-  role               String?
+  roles              String[]   @default([])
   department         Department? @relation(fields: [departmentId], references: [id])
   departmentId       Int?
   reportingManager   Employee?  @relation("ManagerReports", fields: [reportingManagerId], references: [id])
   reportingManagerId Int?
   reports            Employee[]  @relation("ManagerReports")
   notes              Note[]
+  authoredNotes      Note[]     @relation("NoteAuthor")
   managedDepartments ManagedDepartment[]
 }
 
@@ -59,10 +60,12 @@ model ManagedDepartment {
 }
 
 model Note {
-  id         Int      @id @default(autoincrement())
-  content    String
-  isAdminOnly Boolean @default(false)
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  employeeId Int
-  createdAt  DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  content     String
+  isAdminOnly Boolean  @default(false)
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  employeeId  Int
+  author      Employee? @relation("NoteAuthor", fields: [authorId], references: [id])
+  authorId    Int?
+  createdAt   DateTime @default(now())
 }

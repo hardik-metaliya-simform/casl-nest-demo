@@ -51,10 +51,9 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  User: 'User',
+  Employee: 'Employee',
   Department: 'Department',
   Team: 'Team',
-  Employee: 'Employee',
   ManagedDepartment: 'ManagedDepartment',
   Note: 'Note'
 } as const
@@ -75,13 +74,19 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const UserScalarFieldEnum = {
+export const EmployeeScalarFieldEnum = {
   id: 'id',
   email: 'email',
-  name: 'name'
+  password: 'password',
+  name: 'name',
+  careerStartDate: 'careerStartDate',
+  salary: 'salary',
+  roles: 'roles',
+  departmentId: 'departmentId',
+  reportingManagerId: 'reportingManagerId'
 } as const
 
-export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
 
 
 export const DepartmentScalarFieldEnum = {
@@ -101,21 +106,6 @@ export const TeamScalarFieldEnum = {
 export type TeamScalarFieldEnum = (typeof TeamScalarFieldEnum)[keyof typeof TeamScalarFieldEnum]
 
 
-export const EmployeeScalarFieldEnum = {
-  id: 'id',
-  email: 'email',
-  password: 'password',
-  name: 'name',
-  careerStartDate: 'careerStartDate',
-  salary: 'salary',
-  role: 'role',
-  departmentId: 'departmentId',
-  reportingManagerId: 'reportingManagerId'
-} as const
-
-export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
-
-
 export const ManagedDepartmentScalarFieldEnum = {
   id: 'id',
   employeeId: 'employeeId',
@@ -130,6 +120,7 @@ export const NoteScalarFieldEnum = {
   content: 'content',
   isAdminOnly: 'isAdminOnly',
   employeeId: 'employeeId',
+  authorId: 'authorId',
   createdAt: 'createdAt'
 } as const
 

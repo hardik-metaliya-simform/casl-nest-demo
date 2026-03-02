@@ -30,7 +30,7 @@ export class EmployeeService {
           ? new Date(dto.careerStartDate)
           : null,
         salary: dto.salary,
-        role: dto.role,
+        roles: dto.roles?.length ? dto.roles : ['Employee'],
         departmentId: dto.departmentId,
         reportingManagerId: dto.reportingManagerId,
       },
@@ -113,7 +113,7 @@ export class EmployeeService {
         dto.careerStartDate ? new Date(dto.careerStartDate) : undefined,
       ],
       ['salary', dto.salary],
-      ['role', dto.role],
+      ['roles', dto.roles],
       ['departmentId', dto.departmentId],
       ['reportingManagerId', dto.reportingManagerId],
     ];
@@ -125,6 +125,17 @@ export class EmployeeService {
       ) {
         data[field] = value;
       }
+    }
+
+    // Explicit safety guards — these mirror the cannot() rules in AbilityFactory
+    // and prevent createPrismaAbility instance-check edge cases from bypassing them
+    if (!user.roles.includes('CTO')) {
+      // Only CTO can update salary
+      delete data['salary'];
+    }
+    if (!user.roles.includes('CTO') && !user.roles.includes('TM')) {
+      // Only CTO and TM can update roles
+      delete data['roles'];
     }
 
     // Password is handled separately (must be hashed)
@@ -171,14 +182,18 @@ export class EmployeeService {
   private sanitizeEmployee(emp: any, user: UserContext): any {
     const result = { ...emp };
 
-    // Only CTO can see salary — strip it for every other role unconditionally
-    if (user.role !== 'CTO') {
+    // Only CTO can see salary
+    if (!user.roles.includes('CTO')) {
       delete result.salary;
     }
 
-    // Employee role cannot see the role field on any record (including their own)
-    if (user.role === 'Employee') {
-      delete result.role;
+    // Pure Employee role cannot see the roles field on any record
+    if (
+      !user.roles.includes('CTO') &&
+      !user.roles.includes('TM') &&
+      !user.roles.includes('RM')
+    ) {
+      delete result.roles;
     }
 
     // Sanitize nested single employee (e.g. reportingManager)

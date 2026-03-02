@@ -7,7 +7,6 @@ import {
   Subjects,
 } from '@casl/prisma';
 import type {
-  User,
   Employee,
   Note,
   Team,
@@ -25,7 +24,6 @@ export enum Actions {
 export type AppSubjects =
   | 'all'
   | Subjects<{
-      User: User;
       Employee: Employee;
       Note: Note;
       Team: Team;
@@ -36,7 +34,7 @@ export type AppAbility = PureAbility<[Actions, AppSubjects], PrismaQuery>;
 
 export type UserContext = {
   id: number;
-  role: 'CTO' | 'TM' | 'RM' | 'Employee';
+  roles: ('CTO' | 'TM' | 'RM' | 'Employee')[];
   departmentId?: number;
   managedDepartmentIds?: number[];
 };
@@ -48,40 +46,40 @@ export class AbilityFactory {
       createPrismaAbility,
     );
 
+    const isCTO = user.roles.includes('CTO');
+    const isTM = user.roles.includes('TM');
+    const isRM = user.roles.includes('RM');
+    const isEmployee = user.roles.includes('Employee');
+
     /**
-     * CTO
-     * - Full access to all resources with no restrictions
-     * - Can create, read, update, and delete all records
-     * - Can see and edit all fields including salary
-     * - Can read admin-only notes
+     * CTO — full unrestricted access to everything
      */
-    if (user.role === 'CTO') {
-      can(Actions.Manage, 'all'); // using wild card
+    if (isCTO) {
+      can(Actions.Manage, 'all');
       return build();
     }
 
-    // Salary field is restricted to CTO only - apply to all non-CTO roles
+    // Salary is restricted to CTO only — apply to all non-CTO roles
     cannot(Actions.Read, 'Employee', ['salary']);
     cannot(Actions.Update, 'Employee', ['salary']);
 
     /**
      * TM (Team Manager)
-     * - Manages one or more departments (via managedDepartmentIds)
+     * - Manages one or more departments via managedDepartmentIds
      * - Can read all employees and teams within assigned departments
      * - Can update employee records including assigning/changing roles within managed departments
-     * - Can create notes on employees in managed departments
-     * - Can read all notes including admin-only notes (isAdminOnly: true)
-     * - Can manage (CRUD) Department and Team models for managed departments
-     * - Can edit own name and careerStartDate
-     * - Cannot see or edit salary field of any employee (including self)
+     * - Can create both public (isAdminOnly: false) and private (isAdminOnly: true) notes on employees in managed depts
+     * - Private notes (isAdminOnly: true) are ONLY readable by the TM who authored them (plus CTO)
+     * - Public notes (isAdminOnly: false) readable by anyone with access to that employee
+     * - Can manage Department and Team records for managed departments
      */
-    if (user.role === 'TM' && user.managedDepartmentIds) {
-      // Can read all employees in managed departments
+    if (isTM && user.managedDepartmentIds) {
+      const deptIds = user.managedDepartmentIds;
+
       can(Actions.Read, 'Employee', {
-        departmentId: { in: user.managedDepartmentIds },
+        departmentId: { in: deptIds },
       });
 
-      // Can update employees in managed departments (except salary)
       can(
         Actions.Update,
         'Employee',
@@ -89,58 +87,51 @@ export class AbilityFactory {
           'name',
           'careerStartDate',
           'email',
-          'role',
+          'roles',
           'departmentId',
           'reportingManagerId',
         ],
-        { departmentId: { in: user.managedDepartmentIds } },
+        { departmentId: { in: deptIds } },
       );
 
-      // Can create notes on employees in managed departments
+      // Can create notes (both public and private) on employees in managed depts
       can(Actions.Create, 'Note', {
-        employee: { is: { departmentId: { in: user.managedDepartmentIds } } },
+        employee: { is: { departmentId: { in: deptIds } } },
       });
 
-      // Can read all notes (including admin-only) for employees in managed departments
+      // Can read public notes for employees in managed depts
       can(Actions.Read, 'Note', {
-        employee: { is: { departmentId: { in: user.managedDepartmentIds } } },
+        isAdminOnly: false,
+        employee: { is: { departmentId: { in: deptIds } } },
       });
 
-      // Can manage Department and Team models for managed departments
-      can(Actions.Manage, 'Department', {
-        id: { in: user.managedDepartmentIds },
-      });
-      can(Actions.Manage, 'Team', {
-        departmentId: { in: user.managedDepartmentIds },
+      // Can read own private (admin-only) notes — only notes this TM authored
+      can(Actions.Read, 'Note', {
+        isAdminOnly: true,
+        authorId: user.id,
       });
 
-      // Can read and update own profile (name and careerStartDate)
+      can(Actions.Manage, 'Department', { id: { in: deptIds } });
+      can(Actions.Manage, 'Team', { departmentId: { in: deptIds } });
+
+      // Own profile read + limited update
       can(Actions.Read, 'Employee', { id: user.id });
       can(Actions.Update, 'Employee', ['name', 'careerStartDate'], {
         id: user.id,
       });
-
-      return build();
     }
 
     /**
      * RM (Reporting Manager)
-     * - Manages employees who report directly to them (reportingManagerId === user.id)
-     * - Can read basic info of direct reports
-     * - Can read the role field of direct reports but cannot edit it
-     * - Can update direct reports' basic fields (name, email, careerStartDate, departmentId, reportingManagerId)
-     * - Can create notes on direct reports
-     * - Can read notes on direct reports except admin-only notes (isAdminOnly: true)
-     * - Can read own profile and edit own name and careerStartDate
-     * - Cannot see or edit salary field of anyone (including self)
-     * - Cannot see role field of anyone (including self)
-     * - Cannot edit role field of direct reports
+     * - Can read employees who report directly to them
+     * - Can update basic fields of direct reports (not salary or roles)
+     * - Can read the roles field of direct reports but cannot edit it
+     * - Can create PUBLIC notes only (isAdminOnly: false) on direct reports
+     * - Can read public notes on direct reports
      */
-    if (user.role === 'RM') {
-      // Can read employees who report to them
+    if (isRM) {
       can(Actions.Read, 'Employee', { reportingManagerId: user.id });
 
-      // Can update basic fields of direct reports (not salary or role)
       can(
         Actions.Update,
         'Employee',
@@ -154,62 +145,46 @@ export class AbilityFactory {
         { reportingManagerId: user.id },
       );
 
-      // Explicitly cannot update role field of direct reports
-      cannot(Actions.Update, 'Employee', ['role']);
+      // RM cannot update roles field on any employee
+      cannot(Actions.Update, 'Employee', ['roles']);
 
-      // Can create notes on direct reports
+      // Can create public notes only on direct reports
       can(Actions.Create, 'Note', {
+        isAdminOnly: false,
         employee: { is: { reportingManagerId: user.id } },
       });
 
-      // Can read notes on direct reports (except admin-only)
+      // Can read public notes about direct reports
       can(Actions.Read, 'Note', {
+        isAdminOnly: false,
         employee: { is: { reportingManagerId: user.id } },
       });
-      cannot(Actions.Read, 'Note', { isAdminOnly: true });
 
-      // Can read own profile (all fields except salary)
+      // Own profile read + limited update
       can(Actions.Read, 'Employee', { id: user.id });
-
-      // Can update own name and careerStartDate
       can(Actions.Update, 'Employee', ['name', 'careerStartDate'], {
         id: user.id,
       });
-
-      return build();
     }
 
     /**
-     * Employee
-     * - Can only access their own profile data
-     * - Can read own employee record
-     * - Can update only own name and careerStartDate
-     * - Can read own notes
-     * - Cannot see salary field (including own)
-     * - Cannot see role field (including own)
-     * - Cannot read admin-only notes (isAdminOnly: true)
-     * - No access to other employees' data
+     * Employee (pure — no TM or RM role)
+     * - Can only access own profile
+     * - Cannot see salary or roles fields
+     * - Can read own public notes
      */
-    if (user.role === 'Employee') {
-      // Can read own employee record
+    if (isEmployee && !isTM && !isRM) {
       can(Actions.Read, 'Employee', { id: user.id });
-
-      // Can update own name and careerStartDate only
       can(Actions.Update, 'Employee', ['name', 'careerStartDate'], {
         id: user.id,
       });
-
-      // Cannot read salary or role fields
-      cannot(Actions.Read, 'Employee', ['salary', 'role']);
-
-      // Can read own notes
-      can(Actions.Read, 'Note', { employeeId: user.id });
-
-      // Cannot read admin-only notes
-      cannot(Actions.Read, 'Note', { isAdminOnly: true });
-
-      return build();
+      cannot(Actions.Read, 'Employee', ['salary', 'roles']);
+      // Can read own public notes only
+      can(Actions.Read, 'Note', { isAdminOnly: false, employeeId: user.id });
     }
+
+    // All authors can read notes they authored (ensures creators can always view their notes)
+    can(Actions.Read, 'Note', { authorId: user.id });
 
     return build();
   }

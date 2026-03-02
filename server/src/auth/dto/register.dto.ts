@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsInt,
   IsDateString,
+  IsArray,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -34,13 +35,15 @@ export class RegisterDto {
   name?: string;
 
   @ApiPropertyOptional({
-    example: 'Employee',
-    description: 'Employee role (Employee, RM, TM, CTO)',
+    example: ['Employee'],
+    description: 'Employee roles (Employee, RM, TM, CTO)',
+    isArray: true,
     enum: ['Employee', 'RM', 'TM', 'CTO'],
   })
   @IsOptional()
-  @IsString()
-  role?: string;
+  @IsArray()
+  @IsString({ each: true })
+  roles?: string[];
 
   @ApiPropertyOptional({
     example: 1,

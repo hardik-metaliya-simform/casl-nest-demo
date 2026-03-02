@@ -5,6 +5,7 @@ import {
   IsInt,
   IsNumber,
   IsDateString,
+  IsArray,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -48,13 +49,15 @@ export class CreateEmployeeDto {
   salary?: number;
 
   @ApiPropertyOptional({
-    example: 'Employee',
-    description: 'Employee role',
+    example: ['Employee'],
+    description: 'Employee roles',
+    isArray: true,
     enum: ['Employee', 'RM', 'TM', 'CTO'],
   })
   @IsOptional()
-  @IsString()
-  role?: string;
+  @IsArray()
+  @IsString({ each: true })
+  roles?: string[];
 
   @ApiPropertyOptional({
     example: 1,

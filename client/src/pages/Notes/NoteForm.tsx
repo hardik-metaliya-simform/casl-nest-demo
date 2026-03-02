@@ -13,7 +13,6 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import type { SelectChangeEvent } from "@mui/material";
 import { notesApi } from "../../api/notesApi";
 import { employeesApi } from "../../api/employeesApi";
 import { authService } from "../../services/authService";
@@ -64,9 +63,7 @@ export const NoteForm: React.FC = () => {
   }, [id, isEdit]);
 
   const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      | SelectChangeEvent,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));

@@ -107,95 +107,95 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <AppBar position="static">
-          <Toolbar disableGutters sx={{ px: 2 }}>
-            {isMobile && (
-              <IconButton
-                size="large"
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                onClick={toggleDrawer(true)}
-                sx={{ mr: 2 }}
-              >
-                <MenuIcon />
-              </IconButton>
-            )}
-
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{ flexGrow: isMobile ? 1 : 0, mr: 4, cursor: "pointer" }}
-              onClick={() => navigate("/")}
+        <Toolbar disableGutters sx={{ px: 2 }}>
+          {isMobile && (
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={toggleDrawer(true)}
+              sx={{ mr: 2 }}
             >
-              RBAC Demo
-            </Typography>
+              <MenuIcon />
+            </IconButton>
+          )}
 
-            {!isMobile && (
-              <Box sx={{ flexGrow: 1, display: "flex" }}>
-                {navItems.map((item) => (
-                  <Button
-                    key={item.path}
-                    onClick={() => handleNavigation(item.path)}
-                    sx={{
-                      my: 2,
-                      color: "white",
-                      display: "block",
-                      borderBottom: location.pathname.startsWith(item.path)
-                        ? "2px solid white"
-                        : "none",
-                    }}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
-              </Box>
-            )}
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ flexGrow: isMobile ? 1 : 0, mr: 4, cursor: "pointer" }}
+            onClick={() => navigate("/")}
+          >
+            RBAC Demo
+          </Typography>
 
-            <Box sx={{ flexGrow: isMobile ? 0 : 1 }} />
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography
-                variant="body2"
-                sx={{ display: { xs: "none", sm: "block" } }}
-              >
-                {user?.role}
-              </Typography>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleOpenUserMenu}
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
-              <Menu
-                sx={{ mt: "45px" }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                <MenuItem onClick={handleMyProfile}>
-                  <Typography textAlign="center">My Profile</Typography>
-                </MenuItem>
-                <MenuItem onClick={handleLogout}>
-                  <Typography textAlign="center">Logout</Typography>
-                </MenuItem>
-              </Menu>
+          {!isMobile && (
+            <Box sx={{ flexGrow: 1, display: "flex" }}>
+              {navItems.map((item) => (
+                <Button
+                  key={item.path}
+                  onClick={() => handleNavigation(item.path)}
+                  sx={{
+                    my: 2,
+                    color: "white",
+                    display: "block",
+                    borderBottom: location.pathname.startsWith(item.path)
+                      ? "2px solid white"
+                      : "none",
+                  }}
+                >
+                  {item.label}
+                </Button>
+              ))}
             </Box>
-          </Toolbar>
+          )}
+
+          <Box sx={{ flexGrow: isMobile ? 0 : 1 }} />
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography
+              variant="body2"
+              sx={{ display: { xs: "none", sm: "block" } }}
+            >
+              {user?.roles?.join(", ")}
+            </Typography>
+            <IconButton
+              size="large"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenUserMenu}
+              color="inherit"
+            >
+              <AccountCircle />
+            </IconButton>
+            <Menu
+              sx={{ mt: "45px" }}
+              id="menu-appbar"
+              anchorEl={anchorElUser}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+            >
+              <MenuItem onClick={handleMyProfile}>
+                <Typography textAlign="center">My Profile</Typography>
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <Typography textAlign="center">Logout</Typography>
+              </MenuItem>
+            </Menu>
+          </Box>
+        </Toolbar>
       </AppBar>
 
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>

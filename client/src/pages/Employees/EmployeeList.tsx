@@ -107,7 +107,7 @@ export const EmployeeList: React.FC = () => {
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               {abilities?.permissions.Employee.canSeeRole && (
-                <TableCell>Role</TableCell>
+                <TableCell>Roles</TableCell>
               )}
               {abilities?.permissions.Employee.canSeeSalary && (
                 <TableCell>Salary</TableCell>
@@ -131,7 +131,7 @@ export const EmployeeList: React.FC = () => {
                   <TableCell>{employee.name || "N/A"}</TableCell>
                   <TableCell>{employee.email}</TableCell>
                   {abilities?.permissions.Employee.canSeeRole && (
-                    <TableCell>{employee.role || "N/A"}</TableCell>
+                    <TableCell>{employee.roles?.join(", ") || "N/A"}</TableCell>
                   )}
                   {abilities?.permissions.Employee.canSeeSalary && (
                     <TableCell>

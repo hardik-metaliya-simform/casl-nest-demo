@@ -4,18 +4,18 @@ export interface User {
   id: number;
   email: string;
   name: string;
-  role: Role;
+  roles: Role[];
 }
 
 export interface UserContext {
   id: number;
-  role: Role;
+  roles: Role[];
   departmentId?: number;
   managedDepartmentIds?: number[];
 }
 
 export interface Abilities {
-  role: Role;
+  roles: Role[];
   userId: number;
   departmentId?: number;
   managedDepartmentIds: number[];
@@ -67,7 +67,7 @@ export interface RegisterDto {
   email: string;
   password: string;
   name?: string;
-  role?: Role;
+  roles?: Role[];
   departmentId?: number;
   reportingManagerId?: number;
   careerStartDate?: string;
@@ -79,7 +79,7 @@ export interface Employee {
   name?: string;
   careerStartDate?: string;
   salary?: number;
-  role?: string;
+  roles?: string[];
   departmentId?: number;
   reportingManagerId?: number;
   department?: Department;

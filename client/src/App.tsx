@@ -52,7 +52,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected routes */}
+        {/* Protected routes — no module check, auth only */}
         <Route
           path="/"
           element={
@@ -79,7 +79,7 @@ function App() {
         <Route
           path="/employees"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="Employee" permissions={["read"]}>
               <Layout>
                 <EmployeeList />
               </Layout>
@@ -89,7 +89,7 @@ function App() {
         <Route
           path="/employees/new"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="Employee" permissions={["create"]}>
               <Layout>
                 <EmployeeForm />
               </Layout>
@@ -99,7 +99,7 @@ function App() {
         <Route
           path="/employees/:id"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="Employee" permissions={["read"]}>
               <Layout>
                 <EmployeeDetail />
               </Layout>
@@ -109,7 +109,7 @@ function App() {
         <Route
           path="/employees/:id/edit"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="Employee" permissions={["read", "update"]}>
               <Layout>
                 <EmployeeForm />
               </Layout>
@@ -121,7 +121,7 @@ function App() {
         <Route
           path="/departments"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="Department" permissions={["read"]}>
               <Layout>
                 <DepartmentList />
               </Layout>
@@ -131,7 +131,7 @@ function App() {
         <Route
           path="/departments/new"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="Department" permissions={["create"]}>
               <Layout>
                 <DepartmentForm />
               </Layout>
@@ -141,7 +141,10 @@ function App() {
         <Route
           path="/departments/:id/edit"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              module="Department"
+              permissions={["read", "update"]}
+            >
               <Layout>
                 <DepartmentForm />
               </Layout>
@@ -153,7 +156,7 @@ function App() {
         <Route
           path="/teams"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="Team" permissions={["read"]}>
               <Layout>
                 <TeamList />
               </Layout>
@@ -163,7 +166,7 @@ function App() {
         <Route
           path="/teams/new"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="Team" permissions={["create"]}>
               <Layout>
                 <TeamForm />
               </Layout>
@@ -173,7 +176,7 @@ function App() {
         <Route
           path="/teams/:id/edit"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="Team" permissions={["read", "update"]}>
               <Layout>
                 <TeamForm />
               </Layout>
@@ -185,7 +188,7 @@ function App() {
         <Route
           path="/notes"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="Note" permissions={["read"]}>
               <Layout>
                 <NoteList />
               </Layout>
@@ -195,7 +198,7 @@ function App() {
         <Route
           path="/notes/new"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="Note" permissions={["create"]}>
               <Layout>
                 <NoteForm />
               </Layout>
@@ -205,7 +208,7 @@ function App() {
         <Route
           path="/notes/:id/edit"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="Note" permissions={["read", "update"]}>
               <Layout>
                 <NoteForm />
               </Layout>
@@ -217,7 +220,7 @@ function App() {
         <Route
           path="/managed-departments"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="ManagedDepartment" permissions={["read"]}>
               <Layout>
                 <ManagedDepartmentList />
               </Layout>
@@ -227,7 +230,7 @@ function App() {
         <Route
           path="/managed-departments/new"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute module="ManagedDepartment" permissions={["create"]}>
               <Layout>
                 <ManagedDepartmentForm />
               </Layout>
@@ -237,7 +240,10 @@ function App() {
         <Route
           path="/managed-departments/:id/edit"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              module="ManagedDepartment"
+              permissions={["read", "update"]}
+            >
               <Layout>
                 <ManagedDepartmentForm />
               </Layout>

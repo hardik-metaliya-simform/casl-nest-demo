@@ -3,16 +3,24 @@ import { Navigate } from "react-router-dom";
 import { CircularProgress, Box } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
 import { useAbility } from "@casl/react";
-import { AbilityContext } from "../casl/ability";
+import {
+  AbilityContext,
+  type AppActions,
+  type AppSubjects,
+} from "../casl/ability";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  require?: { action: string; subject: string };
+  /** CASL subject (module) to check permissions against */
+  module?: AppSubjects;
+  /** All listed actions must be allowed on `module`; defaults to ["read"] when module is set */
+  permissions?: AppActions[];
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
-  require,
+  module,
+  permissions = ["read"],
 }) => {
   const { loading, isAuthenticated } = useAuth();
   const ability = useAbility(AbilityContext as any);
@@ -32,8 +40,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  if (require && !ability.can(require.action as any, require.subject as any)) {
-    return <Navigate to="/" replace />;
+  if (module) {
+    const allAllowed = permissions.every((action) =>
+      ability.can(action, module),
+    );
+    if (!allAllowed) return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

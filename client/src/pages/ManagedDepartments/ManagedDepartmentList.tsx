@@ -21,8 +21,9 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { useAbility } from "@casl/react";
+import { AbilityContext } from "../../casl/ability";
 import { managedDepartmentsApi } from "../../api/managedDepartmentsApi";
-import { authService } from "../../services/authService";
 import { notificationService } from "../../services/notificationService";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import type { ManagedDepartment } from "../../types";
@@ -36,7 +37,7 @@ export const ManagedDepartmentList: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<ManagedDepartment | null>(
     null,
   );
-  const abilities = authService.getAbilities();
+  const ability = useAbility(AbilityContext as any);
   const navigate = useNavigate();
 
   const fetchManagedDepartments = async () => {
@@ -89,7 +90,7 @@ export const ManagedDepartmentList: React.FC = () => {
         }}
       >
         <Typography variant="h4">Managed Departments</Typography>
-        {abilities?.permissions.ManagedDepartment.create && (
+        {ability.can("manage", "Department") && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -128,7 +129,7 @@ export const ManagedDepartmentList: React.FC = () => {
                     {item.department?.name || item.departmentId}
                   </TableCell>
                   <TableCell align="right">
-                    {abilities?.permissions.ManagedDepartment.update && (
+                    {ability.can("manage", "Department") && (
                       <IconButton
                         size="small"
                         onClick={() =>
@@ -138,7 +139,7 @@ export const ManagedDepartmentList: React.FC = () => {
                         <EditIcon />
                       </IconButton>
                     )}
-                    {abilities?.permissions.ManagedDepartment.delete && (
+                    {ability.can("manage", "Department") && (
                       <IconButton
                         size="small"
                         color="error"

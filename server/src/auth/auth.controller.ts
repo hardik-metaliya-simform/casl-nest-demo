@@ -69,4 +69,14 @@ export class AuthController {
   getAbilities(@CurrentUser() user: UserContext) {
     return this.authService.getAbilities(user);
   }
+
+  @Get('packed-rules')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Get CASL packed rules for the current user' })
+  @ApiResponse({ status: 200, description: 'Packed CASL rules array' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  getPackedRules(@CurrentUser() user: UserContext) {
+    return this.authService.getPackedRules(user);
+  }
 }

@@ -54,6 +54,8 @@ export class EmployeeService {
 
     // Get Prisma-compatible filter from CASL
     const accessibleFilter = accessibleBy(ability, Actions.Read).Employee;
+    console.log({ ability: ability.rules });
+
     // Fetch employees with permissions applied
     const employees = await this.prisma.employee.findMany({
       where: accessibleFilter,

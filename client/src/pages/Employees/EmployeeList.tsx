@@ -23,10 +23,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import AddIcon from "@mui/icons-material/Add";
 import { employeesApi } from "../../api/employeesApi";
-import { authService } from "../../services/authService";
 import { notificationService } from "../../services/notificationService";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import type { Employee } from "../../types";
+import { Can, AbilityContext } from "../../casl/ability";
+import { useAbility } from "@casl/react";
 
 export const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -35,8 +36,8 @@ export const EmployeeList: React.FC = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null,
   );
-  const abilities = authService.getAbilities();
   const navigate = useNavigate();
+  const ability = useAbility(AbilityContext as any);
 
   const fetchEmployees = async () => {
     try {
@@ -88,7 +89,7 @@ export const EmployeeList: React.FC = () => {
         }}
       >
         <Typography variant="h4">Employees</Typography>
-        {abilities?.permissions.Employee.create && (
+        <Can I="create" a="Employee">
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -96,7 +97,7 @@ export const EmployeeList: React.FC = () => {
           >
             Create Employee
           </Button>
-        )}
+        </Can>
       </Box>
 
       <TableContainer component={Paper}>
@@ -106,10 +107,10 @@ export const EmployeeList: React.FC = () => {
               <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
-              {abilities?.permissions.Employee.canSeeRole && (
+              {ability.can("read", "Employee", "roles") && (
                 <TableCell>Roles</TableCell>
               )}
-              {abilities?.permissions.Employee.canSeeSalary && (
+              {ability.can("read", "Employee", "salary") && (
                 <TableCell>Salary</TableCell>
               )}
               <TableCell>Department</TableCell>
@@ -130,10 +131,10 @@ export const EmployeeList: React.FC = () => {
                   <TableCell>{employee.id}</TableCell>
                   <TableCell>{employee.name || "N/A"}</TableCell>
                   <TableCell>{employee.email}</TableCell>
-                  {abilities?.permissions.Employee.canSeeRole && (
+                  {ability.can("read", "Employee", "roles") && (
                     <TableCell>{employee.roles?.join(", ") || "N/A"}</TableCell>
                   )}
-                  {abilities?.permissions.Employee.canSeeSalary && (
+                  {ability.can("read", "Employee", "salary") && (
                     <TableCell>
                       {employee.salary ? `$${employee.salary}` : "N/A"}
                     </TableCell>
@@ -155,7 +156,7 @@ export const EmployeeList: React.FC = () => {
                     >
                       <VisibilityIcon />
                     </IconButton>
-                    {abilities?.permissions.Employee.update && (
+                    <Can I="update" a="Employee">
                       <IconButton
                         size="small"
                         onClick={() =>
@@ -164,8 +165,8 @@ export const EmployeeList: React.FC = () => {
                       >
                         <EditIcon />
                       </IconButton>
-                    )}
-                    {abilities?.permissions.Employee.delete && (
+                    </Can>
+                    <Can I="delete" a="Employee">
                       <IconButton
                         size="small"
                         color="error"
@@ -173,7 +174,7 @@ export const EmployeeList: React.FC = () => {
                       >
                         <DeleteIcon />
                       </IconButton>
-                    )}
+                    </Can>
                   </TableCell>
                 </TableRow>
               ))

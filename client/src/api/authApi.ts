@@ -6,6 +6,7 @@ import type {
   UserContext,
   Abilities,
 } from "../types";
+import type { PackRule } from "@casl/ability/extra";
 
 export const authApi = {
   async login(dto: LoginDto): Promise<{ accessToken: string; user: User }> {
@@ -25,6 +26,12 @@ export const authApi = {
 
   async getAbilities(): Promise<Abilities> {
     const response = await axiosInstance.get("/auth/abilities");
+    return response.data;
+  },
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async getPackedRules(): Promise<PackRule<any>[]> {
+    const response = await axiosInstance.get("/auth/packed-rules");
     return response.data;
   },
 };

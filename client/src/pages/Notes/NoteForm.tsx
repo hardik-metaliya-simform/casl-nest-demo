@@ -13,9 +13,10 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material/Select";
+import { useAuth } from "../../contexts/AuthContext";
 import { notesApi } from "../../api/notesApi";
 import { employeesApi } from "../../api/employeesApi";
-import { authService } from "../../services/authService";
 import { notificationService } from "../../services/notificationService";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import type { Employee } from "../../types";
@@ -24,7 +25,7 @@ export const NoteForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
-  const abilities = authService.getAbilities();
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -69,9 +70,16 @@ export const NoteForm: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSelectChange = (e: SelectChangeEvent<string>) => {
+    setFormData((prev) => ({ ...prev, employeeId: e.target.value }));
+  };
+
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, isAdminOnly: e.target.checked }));
   };
+
+  const canSetAdminOnly =
+    user?.roles?.includes("TM") || user?.roles?.includes("CTO");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,7 +137,7 @@ export const NoteForm: React.FC = () => {
             <Select
               name="employeeId"
               value={formData.employeeId}
-              onChange={handleChange}
+              onChange={handleSelectChange}
               label="Employee"
             >
               {employees.map((emp) => (
@@ -140,7 +148,7 @@ export const NoteForm: React.FC = () => {
             </Select>
           </FormControl>
 
-          {abilities?.permissions.Note.canSeeAdminOnly && (
+          {canSetAdminOnly && (
             <FormControlLabel
               control={
                 <Checkbox

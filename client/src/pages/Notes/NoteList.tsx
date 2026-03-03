@@ -22,8 +22,9 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { useAbility } from "@casl/react";
+import { AbilityContext } from "../../casl/ability";
 import { notesApi } from "../../api/notesApi";
-import { authService } from "../../services/authService";
 import { notificationService } from "../../services/notificationService";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import type { Note } from "../../types";
@@ -33,7 +34,7 @@ export const NoteList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-  const abilities = authService.getAbilities();
+  const ability = useAbility(AbilityContext as any);
   const navigate = useNavigate();
 
   const fetchNotes = async () => {
@@ -86,7 +87,7 @@ export const NoteList: React.FC = () => {
         }}
       >
         <Typography variant="h4">Notes</Typography>
-        {abilities?.permissions.Note.create && (
+        {ability.can("create", "Note") && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -139,7 +140,7 @@ export const NoteList: React.FC = () => {
                       : "N/A"}
                   </TableCell>
                   <TableCell align="right">
-                    {abilities?.permissions.Note.update && (
+                    {ability.can("update", "Note") && (
                       <IconButton
                         size="small"
                         onClick={() => navigate(`/notes/${note.id}/edit`)}
@@ -147,7 +148,7 @@ export const NoteList: React.FC = () => {
                         <EditIcon />
                       </IconButton>
                     )}
-                    {abilities?.permissions.Note.delete && (
+                    {ability.can("delete", "Note") && (
                       <IconButton
                         size="small"
                         color="error"

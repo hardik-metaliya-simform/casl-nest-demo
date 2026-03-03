@@ -11,6 +11,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material/Select";
 import { teamsApi } from "../../api/teamsApi";
 import { departmentsApi } from "../../api/departmentsApi";
 import { notificationService } from "../../services/notificationService";
@@ -61,6 +62,10 @@ export const TeamForm: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (e: SelectChangeEvent<string>) => {
+    setFormData((prev) => ({ ...prev, departmentId: e.target.value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,7 +123,7 @@ export const TeamForm: React.FC = () => {
             <Select
               name="departmentId"
               value={formData.departmentId}
-              onChange={handleChange}
+              onChange={handleSelectChange}
               label="Department"
             >
               <MenuItem value="">None</MenuItem>

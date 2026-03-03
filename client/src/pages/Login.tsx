@@ -9,7 +9,7 @@ import {
   Box,
   Link,
 } from "@mui/material";
-import { authService } from "../services/authService";
+import { useAuth } from "../contexts/AuthContext";
 import { notificationService } from "../services/notificationService";
 
 export const Login: React.FC = () => {
@@ -17,13 +17,14 @@ export const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await authService.login({ email, password });
+      await login({ email, password });
       notificationService.success("Login successful!");
       navigate("/");
     } catch (error: any) {

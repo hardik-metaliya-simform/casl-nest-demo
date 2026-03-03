@@ -19,18 +19,23 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import { authService } from "../services/authService";
+import { useAbility } from "@casl/react";
+import { AbilityContext } from "../casl/ability";
+import { useAuth } from "../contexts/AuthContext";
 
 export const Navbar: React.FC = () => {
-  const abilities = authService.getAbilities();
-  const user = authService.getUser();
+  const { user, logout } = useAuth();
+  const ability = useAbility(AbilityContext as any);
   const navigate = useNavigate();
   const location = useLocation();
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
+  // console.log(
+  //   "permission check",
+  //   ability.can("read", "Employee", "careerStartDate"),
+  // ); --> Example
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -41,8 +46,7 @@ export const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     handleCloseUserMenu();
-    authService.logout();
-    navigate("/login");
+    logout();
   };
 
   const handleMyProfile = () => {
@@ -58,27 +62,27 @@ export const Navbar: React.FC = () => {
     {
       label: "Employees",
       path: "/employees",
-      visible: abilities?.permissions.Employee.read || false,
+      visible: ability.can("read", "Employee"),
     },
     {
       label: "Departments",
       path: "/departments",
-      visible: abilities?.permissions.Department.read || false,
+      visible: ability.can("read", "Department"),
     },
     {
       label: "Teams",
       path: "/teams",
-      visible: abilities?.permissions.Team.read || false,
+      visible: ability.can("read", "Team"),
     },
     {
       label: "Notes",
       path: "/notes",
-      visible: abilities?.permissions.Note.read || false,
+      visible: ability.can("read", "Note"),
     },
     {
       label: "Managed Departments",
       path: "/managed-departments",
-      visible: abilities?.permissions.ManagedDepartment.read || false,
+      visible: ability.can("manage", "Department"),
     },
   ].filter((item) => item.visible);
 

@@ -75,7 +75,6 @@ export class AbilityFactory {
       can(Actions.Read, 'Employee', {
         employeeDepartments: { some: { departmentId: { in: deptIds } } },
       });
-
       can(
         Actions.Update,
         'Employee',
@@ -207,16 +206,8 @@ export class AbilityFactory {
     // any broader can(Read/Update, Employee) rules granted above (CASL: last rule wins)
     cannot(Actions.Read, 'Employee', ['salary']);
     cannot(Actions.Update, 'Employee', ['salary']);
+    // cannot(Actions.Read, 'Employee', ['careerStartDate', 'email']);  --> Example
 
     return build();
-  }
-
-  getAccessibleWhere<T extends AppSubjects>(
-    ability: AppAbility,
-    model: Exclude<T, 'all'>,
-  ): PrismaQuery {
-    // Returns Prisma WhereInput for accessible records
-    const accessible = accessibleBy(ability) as any;
-    return accessible[model as string] as PrismaQuery;
   }
 }

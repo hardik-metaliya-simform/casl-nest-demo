@@ -21,8 +21,9 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { useAbility } from "@casl/react";
+import { AbilityContext } from "../../casl/ability";
 import { teamsApi } from "../../api/teamsApi";
-import { authService } from "../../services/authService";
 import { notificationService } from "../../services/notificationService";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import type { Team } from "../../types";
@@ -32,7 +33,7 @@ export const TeamList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
-  const abilities = authService.getAbilities();
+  const ability = useAbility(AbilityContext as any);
   const navigate = useNavigate();
 
   const fetchTeams = async () => {
@@ -85,7 +86,7 @@ export const TeamList: React.FC = () => {
         }}
       >
         <Typography variant="h4">Teams</Typography>
-        {abilities?.permissions.Team.create && (
+        {ability.can("create", "Team") && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -122,7 +123,7 @@ export const TeamList: React.FC = () => {
                     {team.department?.name || team.departmentId || "N/A"}
                   </TableCell>
                   <TableCell align="right">
-                    {abilities?.permissions.Team.update && (
+                    {ability.can("update", "Team") && (
                       <IconButton
                         size="small"
                         onClick={() => navigate(`/teams/${team.id}/edit`)}
@@ -130,7 +131,7 @@ export const TeamList: React.FC = () => {
                         <EditIcon />
                       </IconButton>
                     )}
-                    {abilities?.permissions.Team.delete && (
+                    {ability.can("delete", "Team") && (
                       <IconButton
                         size="small"
                         color="error"

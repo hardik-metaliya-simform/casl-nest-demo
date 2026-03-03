@@ -14,9 +14,10 @@ import {
   OutlinedInput,
 } from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material/Select";
+import { useAbility } from "@casl/react";
+import { AbilityContext } from "../../casl/ability";
 import { employeesApi } from "../../api/employeesApi";
 import { departmentsApi } from "../../api/departmentsApi";
-import { authService } from "../../services/authService";
 import { notificationService } from "../../services/notificationService";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import type { Employee, Department } from "../../types";
@@ -27,7 +28,7 @@ export const EmployeeForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
-  const abilities = authService.getAbilities();
+  const ability = useAbility(AbilityContext as any);
 
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
@@ -104,6 +105,10 @@ export const EmployeeForm: React.FC = () => {
     setFormData((prev) => ({ ...prev, departmentId: e.target.value }));
   };
 
+  const handleManagerChange = (e: SelectChangeEvent<string>) => {
+    setFormData((prev) => ({ ...prev, reportingManagerId: e.target.value }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -116,7 +121,7 @@ export const EmployeeForm: React.FC = () => {
           careerStartDate: formData.careerStartDate || undefined,
           salary:
             formData.salary !== "" ? parseFloat(formData.salary) : undefined,
-          roles: abilities?.permissions.Employee.canEditRole
+          roles: ability.can("update", "Employee", "roles")
             ? formData.roles
             : undefined,
           departmentIds: formData.departmentId
@@ -215,9 +220,7 @@ export const EmployeeForm: React.FC = () => {
             InputLabelProps={{ shrink: true }}
           />
 
-          {(isEdit
-            ? abilities?.permissions.Employee.canEditSalary
-            : abilities?.permissions.Employee.canSeeSalary) && (
+          {ability.can("read", "Employee", "salary") && (
             <TextField
               fullWidth
               label="Salary"
@@ -229,7 +232,7 @@ export const EmployeeForm: React.FC = () => {
             />
           )}
 
-          {abilities?.permissions.Employee.canEditRole && (
+          {ability.can("update", "Employee", "roles") && (
             <FormControl fullWidth margin="normal">
               <InputLabel>Roles</InputLabel>
               <Select
@@ -273,14 +276,8 @@ export const EmployeeForm: React.FC = () => {
           <FormControl fullWidth margin="normal">
             <InputLabel>Reporting Manager</InputLabel>
             <Select
-              name="reportingManagerId"
               value={formData.reportingManagerId}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  reportingManagerId: e.target.value as string,
-                }))
-              }
+              onChange={handleManagerChange}
               label="Reporting Manager"
             >
               <MenuItem value="">None</MenuItem>

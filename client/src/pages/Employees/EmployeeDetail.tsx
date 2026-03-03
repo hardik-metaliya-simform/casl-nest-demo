@@ -4,17 +4,18 @@ import { Typography, Paper, Button, Box, Stack, Chip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { employeesApi } from "../../api/employeesApi";
-import { authService } from "../../services/authService";
 import { notificationService } from "../../services/notificationService";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import type { Employee } from "../../types";
+import { Can, AbilityContext } from "../../casl/ability";
+import { useAbility } from "@casl/react";
 
 export const EmployeeDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const abilities = authService.getAbilities();
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
+  const ability = useAbility(AbilityContext as any);
 
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -50,7 +51,7 @@ export const EmployeeDetail: React.FC = () => {
       >
         <Typography variant="h4">Employee Details</Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
-          {abilities?.permissions.Employee.update && (
+          <Can I="update" a="Employee">
             <Button
               variant="contained"
               startIcon={<EditIcon />}
@@ -58,7 +59,7 @@ export const EmployeeDetail: React.FC = () => {
             >
               Edit
             </Button>
-          )}
+          </Can>
           <Button
             variant="outlined"
             startIcon={<ArrowBackIcon />}
@@ -109,7 +110,7 @@ export const EmployeeDetail: React.FC = () => {
               <Typography variant="body1">{employee.email}</Typography>
             </Box>
 
-            {abilities?.permissions.Employee.canSeeRole && (
+            {ability.can("read", "Employee", "roles") && (
               <Box sx={{ flex: "1 1 45%", minWidth: "200px" }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Roles
@@ -121,7 +122,7 @@ export const EmployeeDetail: React.FC = () => {
             )}
           </Box>
 
-          {abilities?.permissions.Employee.canSeeSalary && (
+          {ability.can("read", "Employee", "salary") && (
             <Box
               sx={{
                 display: "flex",

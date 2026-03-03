@@ -21,8 +21,9 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { useAbility } from "@casl/react";
+import { AbilityContext } from "../../casl/ability";
 import { departmentsApi } from "../../api/departmentsApi";
-import { authService } from "../../services/authService";
 import { notificationService } from "../../services/notificationService";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import type { Department } from "../../types";
@@ -33,7 +34,7 @@ export const DepartmentList: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] =
     useState<Department | null>(null);
-  const abilities = authService.getAbilities();
+  const ability = useAbility(AbilityContext as any);
   const navigate = useNavigate();
 
   const fetchDepartments = async () => {
@@ -86,7 +87,7 @@ export const DepartmentList: React.FC = () => {
         }}
       >
         <Typography variant="h4">Departments</Typography>
-        {abilities?.permissions.Department.create && (
+        {ability.can("create", "Department") && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -121,7 +122,7 @@ export const DepartmentList: React.FC = () => {
                   <TableCell>{department.name}</TableCell>
                   <TableCell>{department.description || "N/A"}</TableCell>
                   <TableCell align="right">
-                    {abilities?.permissions.Department.update && (
+                    {ability.can("update", "Department") && (
                       <IconButton
                         size="small"
                         onClick={() =>
@@ -131,7 +132,7 @@ export const DepartmentList: React.FC = () => {
                         <EditIcon />
                       </IconButton>
                     )}
-                    {abilities?.permissions.Department.delete && (
+                    {ability.can("delete", "Department") && (
                       <IconButton
                         size="small"
                         color="error"

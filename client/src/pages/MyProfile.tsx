@@ -8,26 +8,24 @@ import {
   Stack,
 } from "@mui/material";
 import { employeesApi } from "../api/employeesApi";
-import { authService } from "../services/authService";
 import { notificationService } from "../services/notificationService";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import type { Employee } from "../types";
+import { useAuth } from "../contexts/AuthContext";
+import { useAbility } from "@casl/react";
+import { AbilityContext } from "../casl/ability";
 
 export const MyProfile: React.FC = () => {
-  const user = authService.getUser();
-  const abilities = authService.getAbilities();
+  const { user } = useAuth();
+  const ability = useAbility(AbilityContext as any);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [employee, setEmployee] = useState<Employee | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    careerStartDate: "",
-  });
+  const [formData, setFormData] = useState({ name: "", careerStartDate: "" });
 
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user?.id) return;
-
       try {
         const data = await employeesApi.getById(user.id);
         setEmployee(data);
@@ -45,7 +43,6 @@ export const MyProfile: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchProfile();
   }, [user?.id]);
 
@@ -78,6 +75,9 @@ export const MyProfile: React.FC = () => {
       setSubmitting(false);
     }
   };
+
+  const canSeeRole = ability.can("read", "Employee", "roles");
+  const canSeeSalary = ability.can("read", "Employee", "salary");
 
   if (loading) return <LoadingSpinner />;
   if (!employee) return <Typography>Profile not found</Typography>;
@@ -116,7 +116,7 @@ export const MyProfile: React.FC = () => {
             </Box>
           </Box>
 
-          {abilities?.permissions.Employee.canSeeRole && (
+          {canSeeRole && (
             <Box
               sx={{
                 display: "flex",
@@ -136,7 +136,7 @@ export const MyProfile: React.FC = () => {
             </Box>
           )}
 
-          {abilities?.permissions.Employee.canSeeSalary && (
+          {canSeeSalary && (
             <Box
               sx={{
                 display: "flex",
@@ -169,7 +169,9 @@ export const MyProfile: React.FC = () => {
                 Department
               </Typography>
               <Typography variant="body1">
-                {employee.department?.name || employee.departmentId || "N/A"}
+                {(employee as any).department?.name ||
+                  (employee as any).departmentId ||
+                  "N/A"}
               </Typography>
             </Box>
 
@@ -204,7 +206,6 @@ export const MyProfile: React.FC = () => {
             onChange={handleChange}
             margin="normal"
           />
-
           <TextField
             fullWidth
             label="Career Start Date"
@@ -215,7 +216,6 @@ export const MyProfile: React.FC = () => {
             margin="normal"
             InputLabelProps={{ shrink: true }}
           />
-
           <Box sx={{ mt: 3 }}>
             <Button type="submit" variant="contained" disabled={submitting}>
               {submitting ? "Saving..." : "Update Profile"}

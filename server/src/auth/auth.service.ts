@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { packRules } from '@casl/ability/extra';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/create-auth.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -128,6 +129,11 @@ export class AuthService {
       departmentIds: employee.employeeDepartments.map((ed) => ed.departmentId),
       managedDepartmentIds,
     };
+  }
+
+  getPackedRules(user: UserContext) {
+    const ability = this.abilityFactory.defineAbility(user);
+    return packRules(ability.rules);
   }
 
   async getAbilities(user: UserContext) {
